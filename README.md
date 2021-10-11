@@ -87,7 +87,8 @@ Server
 
     console.log('Hello World!')
 
-8- Commit current state from
+8- Commit current state and push to GitHub
+
 
 
 
