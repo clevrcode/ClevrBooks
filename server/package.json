@@ -1,0 +1,17 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend Server for ClevrBooks app",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "nodemon --verbose",
+    "lint": "eslint **/*.js",
+    "init": "eslint --init",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Claude Vaillancourt",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.0.0"
+  }
+}
