@@ -89,6 +89,19 @@ Server
 
 8- Commit current state and push to GitHub
 
+9- Install express, body-parser, cors and morgan
 
+    >npm install --save express body-parser cors morgan
+    npm WARN server@1.0.0 No repository field.
 
+    + body-parser@1.19.0
+    + cors@2.8.5
+    + express@4.17.1
+    + morgan@1.10.0
+    added 64 packages from 39 contributors and audited 156 packages in 2.625s
+
+    13 packages are looking for funding
+    run `npm fund` for details
+
+    found 0 vulnerabilities
 
