@@ -2,8 +2,11 @@
 Accounting app with Vue.js and Node.js/Express
 
 1- Create repository on GitHub
+
 2- clone repo on a local directory
+
 3- edit README.md, commit and push back to GitHub
+
 
 ## Server
 
@@ -19,28 +22,28 @@ Accounting app with Vue.js and Node.js/Express
     > npm init
     ```
     
-    > package name: (server)
-    > version: (1.0.0)
-    > description: Backend Server for ClevrBooks app
-    > entry point: (.eslintrc.js) src/app.js
-    > test command:
-    > git repository:
-    > keywords:
-    > author: Claude Vaillancourt
-    > license: (ISC) MIT
-    > About to write to C:\Users\vaill\Documents\work\WebProjects\ClevrBooks\server\package.json:
-> 
-    > {
-    > "name": "server",
-    > "version": "1.0.0",
-    > "description": "Backend Server for ClevrBooks app",
-    > "main": "src/app.js",
-    > "scripts": {
-    >     "test": "echo \"Error: no test specified\" && exit 1"
-    > },
-    > "author": "Claude Vaillancourt",
-    > "license": "MIT"
-    > }
+     package name: (server)
+     version: (1.0.0)
+     description: Backend Server for ClevrBooks app
+     entry point: (.eslintrc.js) src/app.js
+     test command:
+     git repository:
+     keywords:
+     author: Claude Vaillancourt
+     license: (ISC) MIT
+     About to write to C:\Users\vaill\Documents\work\WebProjects\ClevrBooks\server\package.json:
+
+     {
+        "name": "server",
+        "version": "1.0.0",
+        "description": "Backend Server for ClevrBooks app",
+        "main": "src/app.js",
+        "scripts": {
+            "test": "echo \"Error: no test specified\" && exit 1"
+        },
+        "author": "Claude Vaillancourt",
+        "license": "MIT"
+     }
 
     Is this OK? (yes)
 
