@@ -5,38 +5,42 @@ Accounting app with Vue.js and Node.js/Express
 2- clone repo on a local directory
 3- edit README.md, commit and push back to GitHub
 
-Server
-======
+## Server
 
 1- Create a folder in the project tree (mkdir server)
+
 2- Within this folder, install nodemon and eslint
+    ```sh
     > npm install -g nodemon
-    
+    ```
+
 3- Initialize the node project
+    ```sh
     > npm init
-
-    package name: (server)
-    version: (1.0.0)
-    description: Backend Server for ClevrBooks app
-    entry point: (.eslintrc.js) src/app.js
-    test command:
-    git repository:
-    keywords:
-    author: Claude Vaillancourt
-    license: (ISC) MIT
-    About to write to C:\Users\vaill\Documents\work\WebProjects\ClevrBooks\server\package.json:
-
-    {
-    "name": "server",
-    "version": "1.0.0",
-    "description": "Backend Server for ClevrBooks app",
-    "main": "src/app.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "Claude Vaillancourt",
-    "license": "MIT"
-    }
+    ```
+    
+    > package name: (server)
+    > version: (1.0.0)
+    > description: Backend Server for ClevrBooks app
+    > entry point: (.eslintrc.js) src/app.js
+    > test command:
+    > git repository:
+    > keywords:
+    > author: Claude Vaillancourt
+    > license: (ISC) MIT
+    > About to write to C:\Users\vaill\Documents\work\WebProjects\ClevrBooks\server\package.json:
+> 
+    > {
+    > "name": "server",
+    > "version": "1.0.0",
+    > "description": "Backend Server for ClevrBooks app",
+    > "main": "src/app.js",
+    > "scripts": {
+    >     "test": "echo \"Error: no test specified\" && exit 1"
+    > },
+    > "author": "Claude Vaillancourt",
+    > "license": "MIT"
+    > }
 
     Is this OK? (yes)
 
@@ -104,4 +108,8 @@ Server
     run `npm fund` for details
 
     found 0 vulnerabilities
+
+## License
+
+MIT
 
