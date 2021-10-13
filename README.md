@@ -20,7 +20,7 @@ Accounting app with Vue.js and Node.js/Express
     > npm init
     ```
     
-     package name: (server)
+    >package name: (server)
      version: (1.0.0)
      description: Backend Server for ClevrBooks app
      entry point: (.eslintrc.js) src/app.js
@@ -52,7 +52,7 @@ Accounting app with Vue.js and Node.js/Express
 
 5. Add following lines to package.json
 
-    "scripts": {
+    >"scripts": {
         "start": "nodemon --verbose",
         "lint": "eslint **/*.js",
         "init": "eslint --init",
@@ -62,8 +62,8 @@ Accounting app with Vue.js and Node.js/Express
     Then, run:
     `>npm run init`
 
-    \> server@1.0.0 init C:\Users\vaill\Documents\work\WebProjects\ClevrBooks\server
-    \> eslint --init
+    > server@1.0.0 init C:\Users\vaill\Documents\work\WebProjects\ClevrBooks\server
+    > eslint --init
 
     √ How would you like to use ESLint? · problems
     √ What type of modules does your project use? · esm
@@ -75,7 +75,7 @@ Accounting app with Vue.js and Node.js/Express
 
 6. Add a .gitignore file
 
-    .DS_Store
+    >.DS_Store
     node_modules
 
     \# Log files
@@ -99,8 +99,10 @@ Accounting app with Vue.js and Node.js/Express
 
 9. Install express, body-parser, cors and morgan
 
+    ```hs
     >npm install --save express body-parser cors morgan
-    npm WARN server@1.0.0 No repository field.
+    ```
+    >npm WARN server@1.0.0 No repository field.
 
     \+ body-parser@1.19.0
     \+ cors@2.8.5
