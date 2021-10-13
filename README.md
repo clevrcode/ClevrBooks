@@ -21,17 +21,17 @@ Accounting app with Vue.js and Node.js/Express
     ```
     
     >package name: (server)
-     version: (1.0.0)
-     description: Backend Server for ClevrBooks app
-     entry point: (.eslintrc.js) src/app.js
-     test command:
-     git repository:
-     keywords:
-     author: Claude Vaillancourt
-     license: (ISC) MIT
-     About to write to C:\Users\vaill\Documents\work\WebProjects\ClevrBooks\server\package.json:
-
-     {
+    version: (1.0.0)
+    description: Backend Server for ClevrBooks app
+    entry point: (.eslintrc.js) src/app.js
+    test command:
+    git repository:
+    keywords:
+    author: Claude Vaillancourt
+    license: (ISC) MIT
+    About to write to C:\Users\vaill\Documents\work\WebProjects\ClevrBooks\server\package.json:
+    >
+    >{
         "name": "server",
         "version": "1.0.0",
         "description": "Backend Server for ClevrBooks app",
@@ -41,9 +41,9 @@ Accounting app with Vue.js and Node.js/Express
         },
         "author": "Claude Vaillancourt",
         "license": "MIT"
-     }
-
-    Is this OK? (yes)
+    }
+    >
+    >    Is this OK? (yes)
 
 4. Install eslint:
     ```sh
@@ -60,10 +60,15 @@ Accounting app with Vue.js and Node.js/Express
     },
 
     Then, run:
-    `>npm run init`
+    ```sh
+    >npm run init
+    ```
 
     > server@1.0.0 init C:\Users\vaill\Documents\work\WebProjects\ClevrBooks\server
+    
+    ```sh
     > eslint --init
+    ```
 
     √ How would you like to use ESLint? · problems
     √ What type of modules does your project use? · esm
@@ -78,10 +83,10 @@ Accounting app with Vue.js and Node.js/Express
     >.DS_Store
     node_modules
 
-    \# Log files
+    >\# Log files
     npm-debug.log*
 
-    \# Editor directories and files
+    >\# Editor directories and files
     .vscode
     *.suo
     \*.ntvs\*
@@ -104,16 +109,16 @@ Accounting app with Vue.js and Node.js/Express
     ```
     >npm WARN server@1.0.0 No repository field.
 
-    \+ body-parser@1.19.0
+    >\+ body-parser@1.19.0
     \+ cors@2.8.5
     \+ express@4.17.1
     \+ morgan@1.10.0
     added 64 packages from 39 contributors and audited 156 packages in 2.625s
 
-    13 packages are looking for funding
+    >13 packages are looking for funding
     run 'npm fund' for details
 
-    found 0 vulnerabilities
+    >found 0 vulnerabilities
 
 ## License
 
