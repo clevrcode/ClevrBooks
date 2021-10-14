@@ -4,6 +4,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 const {sequelize} = require('./models') // resolve to ./models/index.js
 const config = require('./config/config')
+const api = require('./api')
 
 var path = require('./models');
 console.log(". = %s", path);
@@ -20,6 +21,7 @@ app.use(cors())
 
 // Define routes
 require('./routes')(app)
+app.use('/api', api)
 
 // Create the database and start the server
 sequelize.sync()
