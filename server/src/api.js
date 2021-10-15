@@ -1,17 +1,17 @@
 const express = require('express')
 const router = express.Router()
+const AuthenticationController = require('./controllers/AuthenticationController')
 
 // Log current time middleware
 router.use((req, res, next) => {
-    console.log('Time: ', Date.toDateString())
+    console.log('Time: ', Date.now())
     next()
 })
 
-router.get('/signup', (req, res) => {
-    res.send({
-        message: 'Signup ...'
-    })
-})
+// Routes
+router.post('/register', 
+    AuthenticationController.register
+)
 
 router.get('/login', (req, res) => {
     res.send({
