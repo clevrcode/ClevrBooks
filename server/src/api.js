@@ -13,11 +13,9 @@ router.post('/register',
     AuthenticationController.register
 )
 
-router.get('/login', (req, res) => {
-    res.send({
-        message: 'Login ...'
-    })
-})
+router.post('/login',
+    AuthenticationController.login
+)
 
 router.get('/status', (req, res) => {
     res.send({
