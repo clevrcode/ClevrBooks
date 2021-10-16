@@ -19,8 +19,10 @@ app.use(morgan('common'))
 app.use(bodyParser.json())
 app.use(cors())
 
-// Define routes
+// Define static routes (later replaced by Vue.js frontend)
 require('./routes')(app)
+
+// Define REST API routes
 app.use('/api', api)
 
 // Create the database and start the server
