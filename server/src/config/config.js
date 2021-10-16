@@ -9,5 +9,9 @@ module.exports = {
             host: process.env.HOST || 'localhost',
             storage: './clevrbooks.sqlite'
         }
+    },
+    JWT: {
+        key: 'supersecretkey',
+        expiresIn: 60 * 60 * 24 * 7   
     }
 }

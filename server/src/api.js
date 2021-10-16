@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const AuthenticationController = require('./controllers/AuthenticationController')
+const checkAuth = require('./middleware/check-auth')
 
 // Log current time middleware
 router.use((req, res, next) => {
@@ -23,7 +24,9 @@ router.get('/status', (req, res) => {
     })
 })
 
-router.get('/accounts', (req, res) => {
+router.get('/accounts', 
+    checkAuth,    
+    (req, res) => {
     res.send({
         messgae: 'All accounts ...'
     })

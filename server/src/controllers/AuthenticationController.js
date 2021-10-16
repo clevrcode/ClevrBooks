@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt')
 const { User } = require('../models')
+const jwt = require('jsonwebtoken')
+const config = require('../config/config')
 
 module.exports = {
     async register (req, res) {
@@ -23,26 +25,37 @@ module.exports = {
     async login (req, res) {
         console.log(req.body)
         try {
-            const {email, password} = req.body
             const user = await User.findOne({
                 where: {
-                    email: email
+                    email: req.body.email
                 }
             })
             if (!user) {
-                console.error(`user '${email}' not found!'`)
-                res.status(403).send({
+                console.error(`user '${req.body.email}' not found!'`)
+                res.status(401).send({
                     error: 'Invalid user'
                 })
             } else {
                 console.log('Validate password...')
-                const match = await bcrypt.compare(password, user.password)
+                const match = await bcrypt.compare(req.body.password, user.password)
                 if (match) {
                     console.log("Password is valid!")
-                    res.send(user.toJSON())
+                    // Create a JSON Web Token JWT
+                    const token = jwt.sign({
+                        email: user.email,
+                        userId: user.id
+                    }, 
+                    config.JWT.key,
+                    { 
+                        expiresIn: config.JWT.expiresIn
+                    })
+                    res.status(200).json({
+                        message: 'Authentication successful',
+                        token: token
+                    })
                 } else {
                     console.error('Invalid password!')
-                    res.status(403).send({
+                    res.status(401).send({
                         error: 'Invalid user'
                     })    
                 }
