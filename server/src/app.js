@@ -1,5 +1,6 @@
 const express = require('express')
-const bodyParser = require('body-parser')
+// bodyParser is now deprecated, just use(express.json()) instead with express 4.16+
+//const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 const {sequelize} = require('./models') // resolve to ./models/index.js
@@ -16,7 +17,7 @@ const app = express()
 // Add app middleware
 //app.use(morgan('combined'))  // This provides the client user-agent info
 app.use(morgan('common'))
-app.use(bodyParser.json())
+app.use(express.json())
 app.use(cors())
 
 // Define static routes (later replaced by Vue.js frontend)
