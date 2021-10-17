@@ -15,6 +15,9 @@ sequelize.define('Transaction', {
         type: DataTypes.INTEGER,
         allowNull: true
     },
+    type: {
+        type: DataTypes.STRING
+    },
     description: {
         type: DataTypes.STRING,
         allowNull: false
@@ -26,6 +29,10 @@ sequelize.define('Transaction', {
     category: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    xferToAccount: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     },
     cleared: {
         type: DataTypes.BOOLEAN,

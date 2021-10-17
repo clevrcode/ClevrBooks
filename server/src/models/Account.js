@@ -17,5 +17,9 @@ module.exports = (sequelize, DataTypes) =>
         currentBalance: {
             type: DataTypes.FLOAT,
             defaultValue: 0.0
+        },
+        currency: {
+            type: DataTypes.STRING,
+            defaultValue: 'CDN'
         }
     })
