@@ -13,5 +13,9 @@ module.exports = (sequelize, DataTypes) =>
         initBalance: {
             type: DataTypes.FLOAT,
             defaultValue: 0.0
+        },
+        currentBalance: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0.0
         }
     })

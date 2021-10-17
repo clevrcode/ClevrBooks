@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const AuthenticationController = require('./controllers/AuthenticationController')
+const AccountController = require('./controllers/AccountController')
 const checkAuth = require('./middleware/check-auth')
 
 // Log current time middleware
@@ -26,10 +27,7 @@ router.get('/status', (req, res) => {
 
 router.get('/accounts', 
     checkAuth,    
-    (req, res) => {
-    res.send({
-        messgae: 'All accounts ...'
-    })
-})
+    AccountController.getAllAccounts
+)
 
 module.exports = router
