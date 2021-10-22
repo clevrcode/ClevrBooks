@@ -1,7 +1,9 @@
 const bcrypt = require('bcrypt')
 const { User } = require('../models')
 const jwt = require('jsonwebtoken')
-const config = require('../config/config')
+const jwtconfig = require(__dirname + '/../config/config.json')["JWT"]
+const jwtkey = jwtconfig.key
+const jwtexpires = jwtconfig.expiresIn
 
 module.exports = {
     async register (req, res) {
@@ -45,9 +47,9 @@ module.exports = {
                         email: user.email,
                         userId: user.id
                     }, 
-                    config.JWT.key,
+                    jwtkey,
                     { 
-                        expiresIn: config.JWT.expiresIn
+                        expiresIn: jwtexpires
                     })
                     res.status(200).json({
                         message: 'Authentication successful',

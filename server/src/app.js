@@ -1,10 +1,17 @@
+// Set environment variables
+const result = require('dotenv').config()
+if (result.error) {
+    console.log("Error: Failed to load environment variables...")
+    process.exit()
+}
+
 const express = require('express')
 // bodyParser is now deprecated, just use(express.json()) instead with express 4.16+
 //const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 const {sequelize} = require('./models') // resolve to ./models/index.js
-const config = require('./config/config')
+//const config = require('./config/config')
 const api = require('./api')
 
 var path = require('./models');
@@ -27,10 +34,11 @@ require('./routes')(app)
 app.use('/api', api)
 
 // Create the database and start the server
+const port = process.env.PORT || 8088
 sequelize.sync()
     .then(() => {
-        app.listen(config.port, () => {
-        console.log(`Express server started on ${config.port}`)
+        app.listen(port, () => {
+            console.log(`Express server started on ${port}`)
         })
     })
     .catch(() => console.log('Failed to sync database'))

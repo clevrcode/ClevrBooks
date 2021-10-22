@@ -1,5 +1,5 @@
 const { Account } = require('../models')
-const config = require('../config/config')
+const config = require('../config/dbconfig')
 
 module.exports = {
     async getAllAccounts (req, res) {

@@ -1,0 +1,30 @@
+{
+  "development": {
+    "username": "clevrcode",
+    "password": null,
+    "database": "clevrbooks",
+    "host": "127.0.0.1",
+    "dialect": "sqlite",
+    "location": "../clevrbooks.sqlite"
+  },
+  "test": {
+    "username": "clevrcode",
+    "password": null,
+    "database": "clevrbooks_test",
+    "host": "127.0.0.1",
+    "dialect": "sqlite",
+    "location": "../clevrbooks.sqlite"
+  },
+  "production": {
+    "username": "clevrcode",
+    "password": null,
+    "database": "clevrbooks_production",
+    "host": "127.0.0.1",
+    "dialect": "sqlite",
+    "location": "../clevrbooks.sqlite"
+  },
+  "JWT": {
+      "key": "supersecretkey",
+      "expiresIn": 3600
+  }
+}
