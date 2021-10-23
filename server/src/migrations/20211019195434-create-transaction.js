@@ -11,6 +11,29 @@ module.exports = {
       date: {
         type: Sequelize.DATEONLY
       },
+      checkNumber: Sequelize.INTEGER,
+      type: Sequelize.STRING,
+      description: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      memo: Sequelize.STRING,
+      category: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      xferToAccount: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      cleared: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      amount: {
+        type: Sequelize.FLOAT,
+        allowNull: false
+      },
       accountId: {
         type: Sequelize.INTEGER,
         onDelete: 'CASCADE',
