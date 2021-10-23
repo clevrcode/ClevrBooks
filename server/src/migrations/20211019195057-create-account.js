@@ -15,13 +15,16 @@ module.exports = {
         type: Sequelize.STRING
       },
       initBalance: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
+        defaultValue: 0
       },
       currentBalance: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
+        defaultValue: 0
       },
       currency: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: 'CDN'
       },
       userId: {
         allowNull: false,
