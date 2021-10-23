@@ -7,6 +7,7 @@
     "start": "nodemon --verbose",
     "lint": "eslint **/*.js",
     "init": "eslint --init",
+    "populate": "node src/populate.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Claude Vaillancourt",
