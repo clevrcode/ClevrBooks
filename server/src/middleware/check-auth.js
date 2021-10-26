@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken')
-const config = require('../config/dbconfig')
 const jwtkey = require(__dirname + '/../config/config.json')["JWT"].key
 
 module.exports = (req, res, next) => {

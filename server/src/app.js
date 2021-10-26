@@ -6,17 +6,11 @@ if (result.error) {
 }
 
 const express = require('express')
-// bodyParser is now deprecated, just use(express.json()) instead with express 4.16+
-//const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
-const {sequelize} = require('./models') // resolve to ./models/index.js
-//const config = require('./config/config')
 const api = require('./api')
 
-var path = require('./models');
-console.log(". = %s", path);
-//console.log("__dirname = %s", path.resolve(__dirname));
+const models = require('./models');
 
 // Create the express app object
 const app = express()
@@ -34,11 +28,11 @@ require('./routes')(app)
 app.use('/api', api)
 
 // Create the database and start the server
-const port = process.env.PORT || 8088
-sequelize.sync()
-    .then(() => {
-        app.listen(port, () => {
-            console.log(`Express server started on ${port}`)
-        })
+const auth = require('./controllers/AuthenticationController')
+if (auth.authenticate()) {
+    const port = process.env.PORT || 8088
+    app.listen(port, () => {
+        console.log(`Express server started on ${port}`)
     })
-    .catch(() => console.log('Failed to sync database'))
+}
+

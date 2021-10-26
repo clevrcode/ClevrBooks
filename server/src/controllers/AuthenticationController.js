@@ -6,18 +6,31 @@ const jwtkey = jwtconfig.key
 const jwtexpires = jwtconfig.expiresIn
 
 module.exports = {
+    async authenticate () {
+        try {
+            await User.sequelize.authenticate();
+            console.log('Connection has been established successfully.');
+            return true
+          } catch (error) {
+            console.error('Unable to connect to the database:', error);
+            return false
+          }        
+    },
+
     async register (req, res) {
         console.log(req.body)
         try {
             const saltRounds = 10
             const hash = bcrypt.hashSync(req.body.password, saltRounds);
+            console.log(hash)
             // Store hash in the user object
-            const user = await User.create({ email: req.body.email, 
-                                             password: hash 
+            const user = await User.create({ name: req.body.name,
+                                             email: req.body.email, 
+                                             password: hash
             })
             res.send(user.toJSON())
         } catch (err) {
-            console.error('Failed to create user')
+            console.error('Failed to create user' + err)
             res.status(400).send({
                 error: err
             })
