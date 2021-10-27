@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true
     },
     type: DataTypes.STRING,
-    description: {
+    payee: {
         type: DataTypes.STRING,
         allowNull: false
     },

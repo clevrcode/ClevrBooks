@@ -13,7 +13,7 @@ module.exports = {
       },
       checkNumber: Sequelize.INTEGER,
       type: Sequelize.STRING,
-      description: {
+      payee: {
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -35,6 +35,7 @@ module.exports = {
         allowNull: false
       },
       accountId: {
+        allowNull: false,
         type: Sequelize.INTEGER,
         onDelete: 'CASCADE',
         references: {
