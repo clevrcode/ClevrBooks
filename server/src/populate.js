@@ -1,3 +1,4 @@
+'use strict';
 const result = require('dotenv').config()
 if (result.error) {
     console.log("Error: Failed to load environment variables...")
@@ -15,15 +16,11 @@ const seedfile = path.resolve('../doc/testone.csv')
 //const seedfile = path.resolve('../doc/BanqueNationale.csv')
 
 function convertAmount(amount) {
-    let str_amount = amount
-    console.log(str_amount)
     if (amount.startsWith('"')) {
-        str_amount = amount.replace(/,/g, '')
-        console.log(str_amount)
-        str_amount = /"(?<amnt>.*)"/.exec(str_amount).groups.amnt
-        console.log(str_amount)
+        amount = amount.replace(/,/g, '')
+        amount = /"(?<amnt>.*)"/.exec(str_amount).groups.amnt
     }
-    return parseFloat(str_amount)
+    return parseFloat(amount)
 }
 
 // console.log(convertAmount('"-1,234.56"'))
@@ -48,13 +45,14 @@ const insertEntry = async (data) => {
     Entry.create(data)
     .then(
         entry => {
-            console.log(`Create new entry for '${entry.payee}'`)
+            console.log(`Created new entry for '${entry.payee}'`)
             return Account.increment('currentBalance', { by: amount, where: { id: data.accountId }})
         }
     )
     .then(
         ret => {
             console.log(`Account ${data.payee} incremented successfully`)
+            console.log(ret)
             if (data.xferToAccount) {
                 // Create the corresponding entry in the account transfered to...
                 let xdata = data
@@ -63,20 +61,26 @@ const insertEntry = async (data) => {
                 xdata.checkNumber = null
                 xdata.type = null
                 xdata.category = data.accountId
+                console.log('Create cross-entry for ' + xdata)
                 return Entry.create(xdata)
             }
         }
     )
     .then(
         entry => {
-            console.log(`Cross-Entry created for for '${data.payee}'`)
-            return Account.increment('currentBalance', { by: entry.amount, where: { id: entry.accountId }})
+            if (entry) {
+                console.log(`Cross-Entry created for '${data.payee}'`)
+                console.log(entry)
+                return Account.increment('currentBalance', { by: entry.amount, where: { id: entry.accountId }})
+            }
         }
     )
     .then(
         account => {
-            console.log(`Account incremented successfully`)
-            console.log(`Entry entered successfully!!!`)
+            if (account) {
+                console.log(`Account incremented successfully`)
+                console.log(`Entry entered successfully!!!`)
+            }
         }
     )
     .catch(
@@ -152,51 +156,5 @@ function parseCsvFile(file, userId) {
             })
         }
     })
-}
-
-
-// async function getUserId(email, cb) {
-//     let userId = -1
-//     try {
-//         const user = await User.findOne({
-//             where: { email: email }
-//         })
-//         if (user) {
-//             console.log(`User ${email} found! => ID: ${user.id}`)
-//             cb(seedfile, user.id)
-//         } else { 
-//             console.log(`User ${email} not found!`)
-//         }
-//     } catch (err) {
-//         console.error(err)
-//     }
-//     return userId
-// }
-
-async function insert(data, userId) {
-    if (data.category.startsWith('[')) {
-        // Check if an account needs to be added
-        const account_name = /\[(?<account_name>.*)\]/.exec(data.category).groups.account_name
-        if (account_name) {
-            try {
-                console.log(account_name)
-                const account = await Account.findOne({
-                        where: { name: account_name,  userId: userId }
-                })
-                if (account) {
-                    console.log("Account already defined")
-                } else {
-                    await Account.create({
-                        name: account_name,
-                        description: account_name, 
-                        userId: userId
-                    })
-                }
-            } catch (err) {
-                console.error('Failed to create account' + err)
-            }
-        }
-    }
-
 }
 
