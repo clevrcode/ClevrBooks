@@ -18,7 +18,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Entry.init({
-    date: DataTypes.DATEONLY,
+    date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
+    },
     checkNumber: {
         type: DataTypes.INTEGER,
         allowNull: true

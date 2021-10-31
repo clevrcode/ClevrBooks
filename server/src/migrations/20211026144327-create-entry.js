@@ -9,7 +9,8 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       date: {
-        type: Sequelize.DATEONLY
+        type: Sequelize.DATEONLY,
+        allowNull: false
       },
       checkNumber: Sequelize.INTEGER,
       type: Sequelize.STRING,
