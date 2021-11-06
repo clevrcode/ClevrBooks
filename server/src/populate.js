@@ -8,7 +8,8 @@ if (result.error) {
 const fs = require('fs')
 const path = require('path')
 const sequelize = require('sequelize')
-const { User, Account, Entry } = require('./models')
+const { User, Account, Entry, Category, Subcategory } = require('./models');
+const subcategory = require('./models/subcategory');
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/config/config.json')[env];
 
@@ -90,23 +91,56 @@ const insertEntry = async (data) => {
     )
 }
 
-const username = 'vaillancourt.c@gmail.com'
-
-fetchUser(username)
-.then(
-    user => {
-        if (user) {
-            parseCsvFile(seedfile, user.id)
-        } else {
-            console.log(`>>User not found ${username}`)
+const insertCategory = async (data) => {
+    Category.create({ name: data.name, type: data.type })
+    .then(
+        category => {
+            console.log(`Created new category for '${category.name}'`)
+            data.subcategories.forEach((subcat) => {
+                Subcategory.create({ name: subcat, category: category.id })
+                .then((sub) => {
+                    console.log(`Subcategory '${sub.name}' created with id: ${sub.id}' `)
+                })
+            })
         }
-    }
-).catch( (err) => {
-    console.error(`User not found ${username}`)
-})
+    )
+    .catch( (error) => {
+        console.log(error)
+    })
+}
+
+//==========================================================
+// Show environment
 
 console.log(`Environment : ${process.env.NODE_ENV}`)
 console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=')
+
+//==========================================================
+// Populate Categories/Subcategories tables
+
+var data = require('../../doc/categories.json');
+
+data.forEach((item) => {
+    insertCategory(item)
+})
+
+//==========================================================
+// Populate Entries tables
+
+// const username = 'vaillancourt.c@gmail.com'
+// fetchUser(username)
+// .then(
+//     user => {
+//         if (user) {
+//             parseCsvFile(seedfile, user.id)
+//         } else {
+//             console.log(`>>User not found ${username}`)
+//         }
+//     }
+// ).catch( (err) => {
+//     console.error(`User not found ${username}`)
+// })
+
 //parseCsvFile(seedfile, UserId)
 //process.exit()
 

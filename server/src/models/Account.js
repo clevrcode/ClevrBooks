@@ -28,20 +28,27 @@ module.exports = (sequelize, DataTypes) => {
     },
     description: DataTypes.STRING,
     initBalance: {
-        type: DataTypes.FLOAT,
-        defaultValue: 0.0
+      allowNull: false,
+      type: DataTypes.FLOAT,
+      defaultValue: 0.0
     },
     currentBalance: {
-        type: DataTypes.FLOAT,
-        defaultValue: 0.0
+      allowNull: false,
+      type: DataTypes.FLOAT,
+      defaultValue: 0.0
     },
     currency: {
-        type: DataTypes.STRING,
-        defaultValue: 'CDN'
+      allowNull: false,
+      type: DataTypes.STRING,
+      defaultValue: 'CDN'
+    },
+    reconciledAt: {
+      type: DataTypes.DATEONLY
     }
   }, {
     sequelize,
     modelName: 'Account',
+    timestamps: false
   });
   return Account;
 };

@@ -18,7 +18,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Entry.init({
-    date: DataTypes.DATEONLY,
+    date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
+    },
     checkNumber: {
         type: DataTypes.INTEGER,
         allowNull: true
@@ -32,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
     category: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    subcategory: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     },
     xferToAccount: {
         type: DataTypes.BOOLEAN,

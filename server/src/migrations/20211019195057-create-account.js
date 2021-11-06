@@ -15,14 +15,17 @@ module.exports = {
         type: Sequelize.STRING
       },
       initBalance: {
+        allowNull: false,
         type: Sequelize.FLOAT,
         defaultValue: 0
       },
       currentBalance: {
+        allowNull: false,
         type: Sequelize.FLOAT,
         defaultValue: 0
       },
       currency: {
+        allowNull: false,
         type: Sequelize.STRING,
         defaultValue: 'CDN'
       },
@@ -36,13 +39,9 @@ module.exports = {
           as: 'userId'
         }
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      reconciledAt: {
+        allowNull: true,
+        type: Sequelize.DATEONLY
       }
     });
   },
