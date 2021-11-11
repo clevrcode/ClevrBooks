@@ -1,4 +1,4 @@
-const { Account } = require('../models')
+const { Account, Entry } = require('../models')
 
 module.exports = {
     async getAllAccounts (req, res) {
@@ -22,6 +22,10 @@ module.exports = {
                 error: error 
             })
         }
+    },
+
+    async insertEntry (req, res) {
+
     },
 
     async addAccount (req, res) {

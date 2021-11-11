@@ -29,4 +29,9 @@ router.get('/accounts',
     AccountController.getAllAccounts
 )
 
+router.post('/insert_entry',
+    checkAuth,
+    AccountController.insertEntry
+)
+
 module.exports = router

@@ -26,7 +26,7 @@ function convertAmount(amount) {
 
 // console.log(convertAmount('"-1,234.56"'))
 // console.log(convertAmount('123.45'))
-const fetchUser = (username) => {
+const fetchUser = async (username) => {
     return User.findOne({
         where: { email: username }
     })
@@ -109,6 +109,35 @@ const insertCategory = async (data) => {
     })
 }
 
+const insertAccount = async (acct) => {
+    try {
+        const user = await fetchUser(acct.user)
+        if (user) {
+            console.log('Create acount for user ' + user)
+            Account.create({ name: acct.name, 
+                description: acct.description,
+                initBalance: acct.initBalance,
+                currentbalance: acct.currentbalance,
+                currency: acct.currentbalance,
+                userId: user.id })
+            .then(
+                account => {
+                    console.log(`Account for '${account.name}' created successfully'`)
+                }
+            )
+            .catch (error => {
+                console.error(error)
+            }) 
+        
+        } else {
+            console.log(`Couldn't found ${acct.user}`)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
 //==========================================================
 // Show environment
 
@@ -118,11 +147,16 @@ console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=')
 //==========================================================
 // Populate Categories/Subcategories tables
 
-var data = require('../../doc/categories.json');
+// var data = require('../../doc/categories.json');
 
-data.forEach((item) => {
-    insertCategory(item)
-})
+// data.forEach((item) => {
+//     insertCategory(item)
+// })
+
+// var accts = require('../../doc/accounts.json');
+// accts.forEach((acct) => {
+//     insertAccount(acct)
+// })
 
 //==========================================================
 // Populate Entries tables
