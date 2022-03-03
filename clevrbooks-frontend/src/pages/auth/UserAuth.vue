@@ -91,8 +91,8 @@ export default {
             console.log(payload)
             try {
                 await this.$store.dispatch(this.mode, payload)
-                // const redirectUrl = '/' + (this.$route.query.redirect || 'accounts')
-                // this.$router.replace(redirectUrl)
+                const redirectUrl = '/' + (this.$route.query.redirect || 'accounts')
+                this.$router.replace(redirectUrl)
             } catch (error) {
                 this.error = error.message || 'Authentication failed!'
             }

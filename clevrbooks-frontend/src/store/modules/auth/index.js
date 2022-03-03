@@ -6,9 +6,7 @@ export default {
             token: null,
             userId: null,
             didAutoLogout: false,
-            authUrl: 'http://192.168.2.3:8080/api/',
-            firebaseUrl: '',
-            API_KEY: 'AIzaSyBujHkX5m_Tjl5jWcEc_vT0e8XRNc-dtlA'
+            authUrl: 'http://192.168.2.3:8080/api/'
         }
     },
     mutations: {
@@ -45,9 +43,7 @@ export default {
             const response = await fetch(url, 
                 {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload.data)
                 }
             )
@@ -73,8 +69,8 @@ export default {
                 // save data in vuex store
                 // console.log(responseData)
                 context.commit('setUser', {
-                    token: responseData.idToken,
-                    userId: responseData.localId
+                    token: responseData.token,
+                    userId: responseData.userId
                 })    
             }   
         },
@@ -125,16 +121,11 @@ export default {
             return state.token
         },
         isAuthenticated(state) {
+            console.log(state.token)
             return !!state.token
         },
         authUrl(state) {
             return state.authUrl
-        },
-        firebaseUrl(state) {
-            return state.firebaseUrl
-        },
-        apiKey(state) {
-            return state.API_KEY
         },
         signupUrl(state) {
             return state.authUrl + 'register'

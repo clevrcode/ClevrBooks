@@ -15,13 +15,12 @@
 export default {
   computed: {
     isLoggedIn() {
-      return false // this.$store.getters.isAuthenticated
+      return this.$store.getters.isAuthenticated
     }
   },
   methods: {
     logout() {
-        console.log('logout')
-        //this.$store.dispatch('logout')
+        this.$store.dispatch('logout')
     }
   }
 }

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import store from './store'
 import HomePage from './pages/HomePage.vue'
 import UserAuth from './pages/auth/UserAuth.vue'
 import AccountList from './pages/accounts/AccountList.vue'
@@ -23,13 +24,13 @@ const router = createRouter({
     ]
 })
 
-// router.beforeEach(function(to, _, next) {
-//     if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
-//         next('/auth')
-//     } else if (to.meta.requiresUnauth && store.getters.isAuthenticated) {
-//         next('/coaches')
-//     } else {
-//         next()
-//     }
-// })
+router.beforeEach(function(to, _, next) {
+    if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
+        next('/auth')
+    } else if (to.meta.requiresUnauth && store.getters.isAuthenticated) {
+        next('/home')
+    } else {
+        next()
+    }
+})
 export default router
