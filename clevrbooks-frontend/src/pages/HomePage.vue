@@ -1,6 +1,8 @@
 <template>
   <div>
-      <h1>Home Page</h1>
+      <base-card>
+          <h1>Home Page</h1>
+      </base-card>
   </div>
 </template>
 
@@ -10,6 +12,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+h1 {
+    padding: 0;
+}
 </style>

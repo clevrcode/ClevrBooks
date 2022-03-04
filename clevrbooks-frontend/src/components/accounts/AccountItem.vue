@@ -2,12 +2,20 @@
     <li>
         <h3>{{ name }}</h3>
         <h4>${{ balance }}</h4>
+        <div class="actions">
+            <base-button link :to="accountDetailsLink">View Details</base-button>
+        </div>
     </li>
 </template>
 
 <script>
 export default {
-    props: ['id', 'name', 'balance']
+    props: ['id', 'name', 'balance'],
+    computed: {
+        accountDetailsLink() {
+            return this.$route.path + '/' + this.id
+        }
+    }
 }
 </script>
 
@@ -26,5 +34,13 @@ h3 {
 h3,
 h4 {
   margin: 0.5rem 0;
+}
+div {
+  margin: 0.5rem 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
 }
 </style>

@@ -12,12 +12,7 @@ const router = createRouter({
     routes: [
         { path: '/', redirect: '/home' },
         { path: '/home', component: HomePage },
-        { 
-            path: '/accounts/:id', 
-            component: AccountDetail, 
-            props: true,
-            meta: { requiresAuth: true }
-        },
+        { path: '/accounts/:id', component: AccountDetail, props: true, meta: { requiresAuth: true }},
         { path: '/accounts', component: AccountList, meta: { requiresAuth: true }},
         { path: '/auth', component: UserAuth, meta: { requiresUnauth: true }},
         { path: '/:notFound(.*)', component: NotFound },
