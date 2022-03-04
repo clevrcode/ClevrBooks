@@ -6,17 +6,17 @@ export default {
         return state.token
     },
     isAuthenticated(state) {
-        console.log(state.token)
+        //console.log(state.token)
         return !!state.token
     },
-    authUrl(state) {
-        return state.authUrl
+    apiUrl(state) {
+        return state.apiUrl
     },
     signupUrl(state) {
-        return state.authUrl + 'register'
+        return state.apiUrl + 'register'
     },
     loginUrl(state) {
-        return state.authUrl + 'login'
+        return state.apiUrl + 'login'
     },
     didAutoLogout(state) {
         return state.didAutoLogout

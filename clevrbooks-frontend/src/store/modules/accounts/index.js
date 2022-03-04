@@ -3,12 +3,10 @@ import actions from './actions.js'
 import getters from './getters.js'
 
 export default {
+    namespaced: true,
     state() {
         return {
-            token: null,
-            userId: null,
-            didAutoLogout: false,
-            apiUrl: 'http://192.168.2.3:8080/api/'
+            accounts: []
         }
     },
     mutations,
