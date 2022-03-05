@@ -1,6 +1,7 @@
 export default {
 
     async getAllAccounts(context) {
+        // console.log('getAllAccounts()')
         const url = context.rootGetters.apiUrl + 'accounts'
         const token = context.rootGetters.token
 
@@ -15,7 +16,7 @@ export default {
         )
         const responseData = await response.json()
         if (!response.ok) {
-            console.log(response)
+            // console.log(response)
             const error = new Error(responseData.message || 'Failed to authenticate')
             throw error
         }
