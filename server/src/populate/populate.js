@@ -4,12 +4,14 @@ if (result.error) {
     console.log("Error: Failed to load environment variables...")
     process.exit()
 }
+console.log('environment loaded')
+console.log('NODE_ENV: ' + process.env.NODE_ENV)
 
 const fs = require('fs')
 const path = require('path')
 const sequelize = require('sequelize')
-const { User, Account, Entry, Category, Subcategory } = require('./models');
-const subcategory = require('./models/subcategory');
+const { User, Account, Entry, Category, Subcategory } = require('../models');
+const subcategory = require('../models/subcategory');
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/config/config.json')[env];
 
