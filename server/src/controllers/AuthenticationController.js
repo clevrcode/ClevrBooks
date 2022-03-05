@@ -66,7 +66,9 @@ module.exports = {
                     })
                     res.status(200).json({
                         message: 'Authentication successful',
-                        token: token
+                        userId: user.id,
+                        token: token,
+                        expiresIn: jwtexpires
                     })
                 } else {
                     console.error('Invalid password!')
