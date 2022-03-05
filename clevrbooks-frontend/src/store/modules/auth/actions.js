@@ -20,7 +20,7 @@ export default {
         if (payload.mode === 'signup') {
             url = context.getters.signupUrl
         }
-        console.log(payload.mode + ': ' + url)
+        // console.log(payload.mode + ': ' + url)
         const response = await fetch(url, 
             {
                 method: 'POST',

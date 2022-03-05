@@ -88,7 +88,6 @@ export default {
             if (this.isModeRegister) {
                 payload.name = this.firstName + ' ' + this.lastName
             }
-            console.log(payload)
             try {
                 await this.$store.dispatch(this.mode, payload)
                 const redirectUrl = '/' + (this.$route.query.redirect || 'accounts')
