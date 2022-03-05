@@ -32,80 +32,82 @@
     </div>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            isLoading: false,
-            error: null,
-            firstName: '',
-            lastName: '',
-            email: '',
-            password: '',
-            formIsValid: true,
-            mode: 'login', // 'login' | 'signup'
+<script setup>
+    import { ref, computed } from 'vue'
+    import { useRouter, useRoute } from 'vue-router'
+    import { useStore } from 'vuex'
+
+    const isLoading = ref(false)
+    const error = ref(null)
+    const firstName = ref('')
+    const lastName = ref('')
+    const email = ref('')
+    const password = ref('')
+    const formIsValid = ref(true)
+    const mode = ref('login')
+    const store = useStore()
+    const router = useRouter()
+    const route = useRoute()
+
+    const isModeRegister = computed(() => { return mode.value === 'signup' })
+
+    const submitButtonCaption = computed(() => {
+        if (mode.value === 'login') {
+            return 'Login'
+        } else {
+            return 'Signup'
         }
-    },
-    computed: {
-        isModeRegister() {
-            return this.mode === 'signup'
-        },
-        submitButtonCaption() {
-            if (this.mode === 'login') {
-                return 'Login'
-            } else {
-                return 'Signup'
-            }
-        },
-        switchModeButtonCaption() {
-            if (this.mode === 'login') {
-                return 'Signup instead'
-            } else {
-                return 'Login instead'
-            }
+    })
+
+    const switchModeButtonCaption = computed(() => {
+        if (mode.value === 'login') {
+            return 'Signup instead'
+        } else {
+            return 'Login instead'
         }
-    },
-    methods: {
-        handleError() {
-            this.error = null
-        },
-        async submitForm() {
-            this.formIsValid = true
-            if (this.email === '' || !this.email.includes('@') || this.password.length < 6) {
-                this.formIsValid = false
-                return
-            }
-            if (this.isModeRegister && (this.firstName === '' || this.lastName === '')) {
-                this.formIsValid = false
-                return
-            }
-            // send http request to Firebase
-            this.isLoading = true
-            const payload = {
-                email: this.email,
-                password: this.password
-            }
-            if (this.isModeRegister) {
-                payload.name = this.firstName + ' ' + this.lastName
-            }
-            try {
-                await this.$store.dispatch(this.mode, payload)
-                const redirectUrl = '/' + (this.$route.query.redirect || 'accounts')
-                this.$router.replace(redirectUrl)
-            } catch (error) {
-                this.error = error.message || 'Authentication failed!'
-            }
-            this.isLoading = false
-        },
-        switchAuthMode() {
-            if (this.mode === 'login') {
-                this.mode = 'signup'
-            } else {
-                this.mode = 'login'
-            }
+    })
+
+    function handleError() {
+        error.value = null
+    }
+
+    async function submitForm() {
+        formIsValid.value = true
+        if (email.value === '' || !email.value.includes('@') || password.value.length < 6) {
+            formIsValid.value = false
+            return
+        }
+        if (isModeRegister.value && (firstName.value === '' || lastName.value === '')) {
+            formIsValid.value = false
+            return
+        }
+        // send http request to Firebase
+        isLoading.value = true
+        const payload = {
+            email: email.value,
+            password: password.value
+        }
+        if (isModeRegister.value) {
+            payload.name = firstName.value + ' ' + lastName.value
+        }
+        try {
+            await store.dispatch(mode.value, payload)
+            const redirectUrl = '/' + (route.query.redirect || 'accounts')
+            router.replace(redirectUrl)
+        } catch (err) {
+            error.value = err.message || 'Authentication failed!'
+        }
+        isLoading.value = false
+    }
+
+    function switchAuthMode() {
+        if (mode.value === 'login') {
+            mode.value = 'signup'
+        } else {
+            mode.value = 'login'
         }
     }
-}
+
 </script>
 
 <style scoped>

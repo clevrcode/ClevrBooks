@@ -11,23 +11,27 @@
   </header>
 </template>
 
-<script>
-export default {
-  computed: {
-    isLoggedIn() {
-      return this.$store.getters.isAuthenticated
-    }
-  },
-  methods: {
-    logout() {
-        this.$store.dispatch('logout')
-        this.$router.replace('/home')
-    }
-  }
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+
+const store = useStore()
+const router = useRouter()
+
+const isLoggedIn = computed(() => {
+  return store.getters.isAuthenticated
+})
+
+function logout() {
+    store.dispatch('logout')
+    router.replace('/home')
 }
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Charm:wght@700&display=swap');
+
 header {
   width: 100%;
   height: 5rem;
@@ -54,6 +58,8 @@ a.router-link-active {
 
 h1 {
   margin: 0;
+  font-family: 'Charm', cursive;
+  font-size: 300%;
 }
 
 h1 a {

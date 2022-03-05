@@ -22,45 +22,40 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useStore } from 'vuex'
 import AccountItem from '../../components/accounts/AccountItem.vue'
 
-export default {
-    components: {
-        AccountItem
-    },
-    data() {
-        return {
-            isLoading: false,
-            errorMsg: null
-        }
-    },
-    computed: {
-        accounts() {
-            return this.$store.getters['accounts/accounts']
-        },
-        hasAccounts() {
-            return !this.isLoading && this.$store.getters['accounts/hasAccounts']
-        }
-    },
-    methods: {
-        async loadAccounts() {
-            this.isLoading = true
-            try {
-                await this.$store.dispatch('accounts/getAllAccounts')
-            } catch (error) {
-                this.errorMsg = error.message || 'Failed to load accounts'
-            }
-            this.isLoading = false
-        },
-        handleError() {
-            this.errorMsg = null
-        }
-    },
-    created() {
-        this.loadAccounts()
+const store = useStore()
+const isLoading = ref(false)
+const errorMsg = ref(null)
+
+const accounts = computed(() => {
+    return store.getters['accounts/accounts']
+})
+
+const hasAccounts = computed(() => {
+    return !isLoading.value && store.getters['accounts/hasAccounts']
+})
+
+async function loadAccounts() {
+    // console.log('loadAccounts()')
+    isLoading.value = true
+    try {
+        await store.dispatch('accounts/getAllAccounts')
+    } catch (err) {
+        errorMsg.value = err.message || 'Failed to load accounts'
     }
+    isLoading.value = false
 }
+
+function handleError() {
+    errorMsg.value = null
+}
+
+onMounted(() => loadAccounts())
+
 </script>
 
 <style scoped>
