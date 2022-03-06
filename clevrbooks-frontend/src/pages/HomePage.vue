@@ -2,7 +2,7 @@
   <div>
       <base-card>
         <div>
-          <h1>Home Page</h1>
+          <img src="../assets/Books_Flat_Icon_Vector.svg" alt="ClevrBooks">
         </div>
       </base-card>
   </div>
