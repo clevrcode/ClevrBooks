@@ -13,10 +13,7 @@ const sequelize = require('sequelize')
 const { User, Account, Entry, Category, Subcategory } = require('../models');
 const subcategory = require('../models/subcategory');
 const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/config/config.json')[env];
-
-const seedfile = path.resolve('../doc/testone.csv')
-//const seedfile = path.resolve('../doc/BanqueNationale.csv')
+const config = require(__dirname + '/../config/config.json')[env];
 
 function convertAmount(amount) {
     if (amount.startsWith('"')) {
@@ -34,14 +31,51 @@ const fetchUser = async (username) => {
     })
 }
 
-// const fetchAccount = (accountname) => {
-//     return Account.findOrCreate({
-//         where: { name: accountname },
-//         defaults: {
-//             description: accountname
-//         }
-//     })
-// }
+const AccountAliases = {
+    "B. Nat . saving": "BNC Saving",
+    "B. Nationale": "BNC Cheque",
+    "CELI Banque Nationale": "BNC CELI",
+    "ING Direct": "Tangerine",
+    "ING - TFSA": "Tangerine CELI",
+    "Epargne KickStart": "Tangerine KickStart",
+    "Credit Desjardins": "Desjardins Credit",
+    "*Taxe de vente*": "TPS-TVQ",
+    "Streetwise Balanced Income Fund": "Tangerine Streetwise"
+}
+
+const csvFiles = [
+    "ArgentCash.csv", 
+    "BanqueNationaleCELI.csv", 
+    "BanqueNationale.csv", 
+    "BanqueNationaleMargeDeCredit.csv",
+    "BanqueNationaleSaving.csv", 
+    "CV_Consultant.csv", 
+    "Desjardins.csv", 
+    "DesjardinsMargeDeCredit.csv",
+    "DesjardinsTaxe.csv", 
+    // "Home_811TK.csv", 
+    // "HondaCivic.csv", 
+    "MasterCard.csv", 
+    // "Retraite_L3.csv", 
+    "TangerineCELI.csv",
+    "Tangerine.csv", 
+    "TangerineKickstart.csv", 
+    "TPS_TVQ.csv", 
+    "VISA.csv"
+]
+
+async function connectAndAuthenticate () {
+    try {
+        console.log('Connect to database...')
+        await User.sequelize.authenticate();
+        console.log('Connection has been established successfully.');
+        return true
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+        return false
+    }
+    console.log('exiting')
+}
 
 const insertEntry = async (data) => {
     const amount = data.amount
@@ -56,36 +90,36 @@ const insertEntry = async (data) => {
         ret => {
             console.log(`Account ${data.payee} incremented successfully`)
             console.log(ret)
-            if (data.xferToAccount) {
-                // Create the corresponding entry in the account transfered to...
-                let xdata = data
-                xdata.accountId = data.category
-                xdata.amount = -data.amount
-                xdata.checkNumber = null
-                xdata.type = null
-                xdata.category = data.accountId
-                console.log('Create cross-entry for ' + xdata)
-                return Entry.create(xdata)
-            }
+            // if (data.xferToAccount) {
+            //     // Create the corresponding entry in the account transfered to...
+            //     let xdata = data
+            //     xdata.accountId = data.category
+            //     xdata.amount = -data.amount
+            //     xdata.checkNumber = null
+            //     xdata.type = null
+            //     xdata.category = data.accountId
+            //     console.log('Create cross-entry for ' + xdata)
+            //     return Entry.create(xdata)
+            // }
         }
     )
-    .then(
-        entry => {
-            if (entry) {
-                console.log(`Cross-Entry created for '${data.payee}'`)
-                console.log(entry)
-                return Account.increment('currentBalance', { by: entry.amount, where: { id: entry.accountId }})
-            }
-        }
-    )
-    .then(
-        account => {
-            if (account) {
-                console.log(`Account incremented successfully`)
-                console.log(`Entry entered successfully!!!`)
-            }
-        }
-    )
+    // .then(
+    //     entry => {
+    //         if (entry) {
+    //             console.log(`Cross-Entry created for '${data.payee}'`)
+    //             console.log(entry)
+    //             return Account.increment('currentBalance', { by: entry.amount, where: { id: entry.accountId }})
+    //         }
+    //     }
+    // )
+    // .then(
+    //     account => {
+    //         if (account) {
+    //             console.log(`Account incremented successfully`)
+    //             console.log(`Entry entered successfully!!!`)
+    //         }
+    //     }
+    // )
     .catch(
         error => {
             console.error(error)
@@ -147,38 +181,30 @@ console.log(`Environment : ${process.env.NODE_ENV}`)
 console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=')
 
 //==========================================================
+// Populate User table
+// run seeder to populate users
+// >sequelize db:seed:all
+// >sequelize db:seed:undo to empty table
+
+//==========================================================
 // Populate Categories/Subcategories tables
 
-// var data = require('../../doc/categories.json');
+var data = require('../../../doc/categories.json');
 
-// data.forEach((item) => {
-//     insertCategory(item)
-// })
+data.forEach((item) => {
+    insertCategory(item)
+})
 
-// var accts = require('../../doc/accounts.json');
-// accts.forEach((acct) => {
-//     insertAccount(acct)
-// })
+var accts = require('../../../doc/accounts.json');
+accts.forEach((acct) => {
+    insertAccount(acct)
+})
 
 //==========================================================
 // Populate Entries tables
 
-// const username = 'vaillancourt.c@gmail.com'
-// fetchUser(username)
-// .then(
-//     user => {
-//         if (user) {
-//             parseCsvFile(seedfile, user.id)
-//         } else {
-//             console.log(`>>User not found ${username}`)
-//         }
-//     }
-// ).catch( (err) => {
-//     console.error(`User not found ${username}`)
-// })
-
 //parseCsvFile(seedfile, UserId)
-//process.exit()
+//process.exit() <=== ???? Do not call exit, it prevents all async methods from execute.
 
 function parseCsvFile(file, userId) {
     console.log(`Open ${file} for user id : ${userId}...`)   

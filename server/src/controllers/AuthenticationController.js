@@ -1,9 +1,18 @@
 const bcrypt = require('bcrypt')
 const { User } = require('../models')
 const jwt = require('jsonwebtoken')
-const jwtconfig = require(__dirname + '/../config/config.json')["JWT"]
-const jwtkey = jwtconfig.key
-const jwtexpires = jwtconfig.expiresIn
+
+const result = require('dotenv').config()
+if (result.error) {
+    console.log("Error: Failed to load environment variables...")
+    process.exit()
+}
+console.log('environment loaded')
+console.log('NODE_ENV: ' + process.env.NODE_ENV)
+// console.log('JWT_SECRET: ' + process.env.JWT_SECRET)
+// console.log('JWT_EXPIRES: ' + process.env.JWT_EXPIRES)
+const jwtkey = process.env.JWT_SECRET
+const jwtexpires = process.env.JWT_EXPIRES
 
 module.exports = {
     async authenticate () {
@@ -67,6 +76,7 @@ module.exports = {
                     res.status(200).json({
                         message: 'Authentication successful',
                         userId: user.id,
+                        name: user.name,
                         token: token,
                         expiresIn: jwtexpires
                     })

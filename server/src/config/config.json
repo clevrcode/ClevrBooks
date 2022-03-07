@@ -14,9 +14,5 @@
     "database": "ClevrBooks",
     "dialect": "sqlite",
     "storage": "./clevrbooks.sqlite3"
-  },
-  "JWT": {
-      "key": "supersecretkey",
-      "expiresIn": 3600
   }
 }
