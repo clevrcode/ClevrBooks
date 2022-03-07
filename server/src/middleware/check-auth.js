@@ -1,5 +1,10 @@
 const jwt = require('jsonwebtoken')
-const jwtkey = require(__dirname + '/../config/config.json')["JWT"].key
+const result = require('dotenv').config()
+if (result.error) {
+    console.log("Error: Failed to load environment variables...")
+    process.exit()
+}
+const jwtkey = process.env.JWT_SECRET
 
 module.exports = (req, res, next) => {
     try {
