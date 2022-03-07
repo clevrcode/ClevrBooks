@@ -1,5 +1,6 @@
 .DS_Store
 node_modules
+src/public/dist
 *.sqlite
 *.sqlite3
 *sqlite3-journal
