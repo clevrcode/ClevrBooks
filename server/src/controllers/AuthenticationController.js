@@ -7,10 +7,8 @@ if (result.error) {
     console.log("Error: Failed to load environment variables...")
     process.exit()
 }
-console.log('environment loaded')
-console.log('NODE_ENV: ' + process.env.NODE_ENV)
-// console.log('JWT_SECRET: ' + process.env.JWT_SECRET)
-// console.log('JWT_EXPIRES: ' + process.env.JWT_EXPIRES)
+// console.log('environment loaded')
+// console.log('NODE_ENV: ' + process.env.NODE_ENV)
 const jwtkey = process.env.JWT_SECRET
 const jwtexpires = process.env.JWT_EXPIRES
 
