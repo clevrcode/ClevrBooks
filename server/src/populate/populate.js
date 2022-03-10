@@ -8,13 +8,7 @@ console.log('environment loaded')
 console.log('NODE_ENV: ' + process.env.NODE_ENV)
 
 const fs = require('fs')
-const path = require('path')
-const sequelize = require('sequelize')
 const { User, Account, Entry, Category, Subcategory } = require('../models');
-const account = require('../models/account');
-const subcategory = require('../models/subcategory');
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
 
 // console.log(convertAmount('"-1,234.56"'))
 // console.log(convertAmount('123.45'))
@@ -41,9 +35,10 @@ const AccountAliases = {
 const csvFiles = {
     user: 'vaillancourt.c@gmail.com',
     files: [
+        "test.csv",
         // "ArgentCash.csv", 
         // "BanqueNationaleCELI.csv", 
-        "BanqueNationale.csv", 
+        // "BanqueNationale.csv", 
         // "BanqueNationaleMargeDeCredit.csv",
         // "BanqueNationaleSaving.csv", 
         // "CV_Consultant.csv", 
@@ -77,9 +72,9 @@ async function connectAndAuthenticate () {
 const insertEntry = async (data) => {
     try {
         const entry = await Entry.create(data)
-        console.log(`Created new entry for '${data.account}'`)
+        // console.log(`Created new entry for '${data.account}'`)
         await Account.increment('currentBalance', { by: data.amount, where: { id: data.accountId }})
-        console.log(`Account ${data.account} incremented successfully`)
+        // console.log(`Account ${data.account} incremented successfully`)
     } catch (error) {
         console.error(error)
     }
@@ -239,22 +234,25 @@ async function parseCsvFile(file, userEmail) {
             if (err) {
                 console.error(err)
             } else {
+                let lineno = 0
                 let linecount = 0
                 let balance = 0.0
                 let entry = null
+                let deferred_entry = null
                 let defer = false
                 const re = new RegExp(',(?<date>\\d\\d\\d\\d-[01]\\d-[0123]\\d),(?<account>[^,]+),(?<check>[^,]*),(?<payee>[^,]+),(?<memo>[^,]*),(?<category>[^,]+),(?<tag>[^,]*),(?<cleared>[R]*),(?<amount>[0-9\-.]+),')
                 const re2 = new RegExp(',,,,,(?<memo>[^,]*),(?<category>[^,]*),(?<tag>[^,]*),(?<cleared>[R]*),(?<amount>[0-9\-.]+),')
                 const lines = data.split('\n')
                 lines.forEach( line => {
+                    lineno++
                     const items = re.exec(line)
                     if (items) {
                         linecount++
                         // console.log(line)
                         //console.log(convertAmount(items.groups.amount).toFixed(2))
-                        if (defer && entry) {
-                            processEntry(entry, user.id)
-                            entry = null
+                        if (defer && deferred_entry) {
+                            console.log(`Process deferred entry: ${deferred_entry.payee}, ${deferred_entry.amount}`)
+                            processEntry(deferred_entry, user.id)
                         }
                         balance += convertAmount(items.groups.amount)
                         const checkNumber = isNaN(parseInt(items.groups.check)) ? null : parseInt(items.groups.check)
@@ -283,18 +281,24 @@ async function parseCsvFile(file, userEmail) {
                             amount: convertAmount(items.groups.amount),       
                         }
                         if (!defer) {
+                            console.log(`process entry: ${line}`)
                             processEntry(entry, user.id)
+                        } else {
+                            deferred_entry = entry
+                            console.log(`Defer entry: ${line}`)
                         }
-                    } else if (defer && entry) {
+                    } else if (defer && deferred_entry) {
                         const subitms = re2.exec(line)
                         if (subitms) {
                             linecount++
                             //console.log(convertAmount(subitms.groups.amount).toFixed(2))
                             const amnt = convertAmount(subitms.groups.amount)
                             balance += amnt
-                            entry.amount += amnt
-                            // console.log(line)
+                            deferred_entry.amount += amnt
+                            console.log(">>>> " + line)
                         }
+                    } else {
+                        console.log(`Failed to parse line [${lineno}]: ${line}`)
                     }
                 })
                 console.log(`Processed ${linecount} lines`)
