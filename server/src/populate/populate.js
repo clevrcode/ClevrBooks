@@ -39,6 +39,7 @@ const CategoryAliases = {
     "Int Inc": "Income:Interest",
     "Untaxble income": "Income:Untaxable",
     "Bank Chrg": "Bank Charge",
+    "Bank Chrg:Master-Card": "Bank Charge:Master-Card",
     "Home Rpair": "Home Repair",
     "Home Rpair:Pool Deck": "Home Repair:Pool Deck",
     "Meals & Entertn": "Dining:Entertainment",
@@ -46,31 +47,34 @@ const CategoryAliases = {
     "Basement": "Home Repair:Basement",
     "Old Age Pension": "Income:Pension",
     "Tax:State": "Tax:Prov",
-    "Christmas": "Gifts"
+    "Christmas": "Gifts",
+    "Car": "Tax:Other",
+    "_Interets courus": "Int Paid",
+    "Gift Received": "Income:Other",
+    "Div Income": "Income:Other"
 }
 
 const csvFiles = {
     user: 'vaillancourt.c@gmail.com',
     files: [
-        //"test.csv",
-        // "ArgentCash.csv", 
-        // "BanqueNationaleCELI.csv", 
+        "ArgentCash.csv", 
+        "BanqueNationaleCELI.csv", 
         "BanqueNationale.csv", 
-        // "BanqueNationaleMargeDeCredit.csv",
-        // "BanqueNationaleSaving.csv", 
-        // "CV_Consultant.csv", 
-        // "Desjardins.csv", 
-        // "DesjardinsMargeDeCredit.csv",
-        // "DesjardinsTaxe.csv", 
-        // // "Home_811TK.csv", 
-        // // "HondaCivic.csv", 
-        // "MasterCard.csv", 
-        // // "Retraite_L3.csv", 
-        // "TangerineCELI.csv",
-        // "Tangerine.csv", 
-        // "TangerineKickstart.csv", 
-        // "TPS_TVQ.csv", 
-        // "VISA.csv"
+        "BanqueNationaleMargeDeCredit.csv",
+        "BanqueNationaleSaving.csv", 
+        //"CV_Consultant.csv", 
+        "Desjardins.csv", 
+        "DesjardinsMargeDeCredit.csv",
+        "DesjardinsTaxe.csv", 
+        // "Home_811TK.csv", 
+        // "HondaCivic.csv", 
+        "MasterCard.csv", 
+        // "Retraite_L3.csv", 
+        "Tangerine.csv", 
+        "TangerineCELI.csv",
+        "TangerineKickstart.csv", 
+        "TPS_TVQ.csv", 
+        "VISA.csv"
     ]
 }
 
@@ -290,7 +294,7 @@ async function parseCsvFile(file, userEmail) {
                 let entry = null
                 let deferred_entry = null
                 let defer = false
-                const re = new RegExp(',(?<date>\\d\\d\\d\\d-[01]\\d-[0123]\\d),(?<account>[^,]+),(?<check>[^,]*),(?<payee>[^,]+),(?<memo>[^,]*),(?<category>[^,]+),(?<tag>[^,]*),(?<cleared>[R]*),(?<amount>[0-9\-.]+),')
+                const re = new RegExp(',(?<date>\\d\\d\\d\\d-[01]\\d-[0123]\\d),(?<account>[^,]+),(?<check>[^,]*),(?<payee>[^,]*),(?<memo>[^,]*),(?<category>[^,]*),(?<tag>[^,]*),(?<cleared>[R]*),(?<amount>[0-9\-.]+),')
                 const re2 = new RegExp(',,,,,(?<memo>[^,]*),(?<category>[^,]*),(?<tag>[^,]*),(?<cleared>[R]*),(?<amount>[0-9\-.]+),')
                 const lines = data.split('\n')
                 lines.forEach( line => {
@@ -312,14 +316,25 @@ async function parseCsvFile(file, userEmail) {
                         defer = !checkNumber && (data.check && data.check.endsWith('S'))
                         const type = renameType((checkNumber === null) ? data.check : null)
                         const accountName = renameAccount(data.account)
-                        let categoryName = renameAccount(data.category)
+                        let payee = 'Unknown'
+                        if (data.payee) {
+                            payee = data.payee
+                        } 
+                        if ((payee === 'Unknown')&&(convertAmount(data.amount) === 0)) {
+                            console.log(`reject entry: ${line}`)
+                            return
+                        }
+                        let categoryName = "Misc"
+                        if (data.category) {
+                            categoryName = renameAccount(data.category)
+                        }
                         let xferToAccount = categoryName.startsWith('[')
                         if (!xferToAccount) {
                             if (data.payee === "pret etudiant") {
                                 categoryName = "Education:Loan"
                             } else if (data.memo === "FEER" && categoryName.startsWith("Salary")) {
                                 categoryName = "Income:Pension"
-                            } else {
+                            } else if (data.category.length > 0) {
                                 categoryName = renameCategory(data.category)
                             }
                         } else {
@@ -335,14 +350,20 @@ async function parseCsvFile(file, userEmail) {
                             } else if (categoryName === "[AMEX]") {
                                 categoryName = "Travel:Business"
                                 xferToAccount = false                           
+                            } else if (categoryName === "[811 T.Kimber]") {
+                                categoryName = "Housing"
+                                xferToAccount = false                           
                             }
+                        }
+                        if (payee === "c@m") {
+                            categoryName = "Computer:Internet"
                         }
                         entry = {
                             account: accountName,
                             date: data.date,
                             checkNumber: checkNumber,
                             type: type,
-                            payee: data.payee,
+                            payee: payee,
                             memo: data.memo,
                             category: categoryName,
                             xferToAccount: xferToAccount,
