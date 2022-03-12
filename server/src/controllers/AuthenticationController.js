@@ -10,7 +10,7 @@ if (result.error) {
 // console.log('environment loaded')
 // console.log('NODE_ENV: ' + process.env.NODE_ENV)
 const jwtkey = process.env.JWT_SECRET
-const jwtexpires = process.env.JWT_EXPIRES
+const jwtexpires = parseInt(process.env.JWT_EXPIRES)
 
 module.exports = {
     async authenticate () {

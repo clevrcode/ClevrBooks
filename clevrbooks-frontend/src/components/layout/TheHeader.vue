@@ -1,11 +1,11 @@
 <template>
   <header>
       <nav>
-          <h1><router-link to="/">ClevrBooks</router-link></h1>
+          <h1><router-link :to="{ name: 'home' }">ClevrBooks</router-link></h1>
           <ul>
-              <li v-if="isLoggedIn"><router-link to="/accounts">All Accounts</router-link></li>
+              <li v-if="isLoggedIn"><router-link :to="{ name: 'accounts' }">All Accounts</router-link></li>
               <li v-if="isLoggedIn"><base-button @click="logout">Logout</base-button></li>
-              <li v-else><router-link to="/auth">Login</router-link></li>
+              <li v-else><router-link :to="{ name: 'auth' }">Login</router-link></li>
           </ul>
       </nav>
   </header>

@@ -6,7 +6,8 @@ export default {
     namespaced: true,
     state() {
         return {
-            accounts: []
+            accounts: [],
+            entries: []
         }
     },
     mutations,

@@ -24,6 +24,10 @@ module.exports = {
         }
     },
 
+    async getAccountEntries (req, res) {
+
+    },
+
     async insertEntry (req, res) {
 
     },
