@@ -20,40 +20,6 @@ function convertAmount(amount) {
     return parseFloat(amount)
 }
 
-const AccountAliases = {
-    "B. Nat . saving": "BNC Saving",
-    "B. Nationale": "BNC Cheque",
-    "CELI Banque Nationale": "BNC CELI",
-    "BNC Marge de credit": "BNC Marge de Credit",
-    "ING Direct": "Tangerine",
-    "ING - TFSA": "Tangerine CELI",
-    "Epargne KickStart": "Tangerine KickStart",
-    "Credit Desjardins": "Desjardins Credit",
-    "*Taxe de vente*": "TPS-TVQ",
-    "Streetwise Balanced Income Fund": "Tangerine Streetwise"
-}
-
-const CategoryAliases = {
-    "Salary": "Income:Salary",
-    "Other Inc": "Income:Other",
-    "Int Inc": "Income:Interest",
-    "Untaxble income": "Income:Untaxable",
-    "Bank Chrg": "Bank Charge",
-    "Bank Chrg:Master-Card": "Bank Charge:Master-Card",
-    "Home Rpair": "Home Repair",
-    "Home Rpair:Pool Deck": "Home Repair:Pool Deck",
-    "Meals & Entertn": "Dining:Entertainment",
-    "L&P Fees": "Misc",
-    "Basement": "Home Repair:Basement",
-    "Old Age Pension": "Income:Pension",
-    "Tax:State": "Tax:Prov",
-    "Christmas": "Gifts",
-    "Car": "Tax:Other",
-    "_Interets courus": "Int Paid",
-    "Gift Received": "Income:Other",
-    "Div Income": "Income:Other"
-}
-
 const csvFiles = {
     user: 'vaillancourt.c@gmail.com',
     files: [
@@ -76,18 +42,6 @@ const csvFiles = {
         "TPS_TVQ.csv", 
         "VISA.csv"
     ]
-}
-
-async function connectAndAuthenticate () {
-    try {
-        console.log('Connect to database...')
-        await User.sequelize.authenticate();
-        console.log('Connection has been established successfully.');
-        return true
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
-        return false
-    }
 }
 
 let entryCounter = 0
@@ -132,27 +86,6 @@ const insertCategory = async (data) => {
     }
 }
 
-const renameAccount = (name) => {
-    let accName = name
-    if (name.startsWith('[')) {
-        accName = name.substring(1, name.length - 1)
-    }
-    if (accName in AccountAliases) {
-       accName = AccountAliases[accName]
-    }
-    if (name.startsWith('[')) {
-        accName = '[' + accName + ']'
-    }
-    return accName
-}
-
-const renameCategory = (name) => {
-    if (name in CategoryAliases) {
-        return CategoryAliases[name]
-    }
-    return name
-}
-
 const insertAccount = async (acct) => {
     try {
         const user = await User.findOne({ where: { email: acct.user } })
@@ -171,24 +104,6 @@ const insertAccount = async (acct) => {
     } catch (error) {
         console.error(error)
     }
-}
-
-function renameType(type) {
-    if (type) {
-        let newType = type
-        if (newType === 'GAB') {
-            newType = 'ATM'
-        } else {
-            if (newType.indexOf(' ') >= 3) {
-                newType = newType.substring(0, newType.indexOf(' '))
-            } 
-            if (newType.endsWith('.')) {
-                newType = newType.substring(0, newType.length - 1)
-            }
-        }
-        return newType
-    }
-    return type
 }
 
 //==========================================================
@@ -311,52 +226,18 @@ async function parseCsvFile(file, userEmail) {
                             processEntry(deferred_entry, user.id)
                         }
                         const data = items.groups
-                        balance += convertAmount(data.amount)
+                        const amount = convertAmount(data.amount)
+                        balance += amount
                         const checkNumber = isNaN(parseInt(data.check)) ? null : parseInt(data.check)
                         defer = !checkNumber && (data.check && data.check.endsWith('S'))
-                        const type = renameType((checkNumber === null) ? data.check : null)
-                        const accountName = renameAccount(data.account)
-                        let payee = 'Unknown'
-                        if (data.payee) {
-                            payee = data.payee
-                        } 
-                        if ((payee === 'Unknown')&&(convertAmount(data.amount) === 0)) {
+                        const type = (checkNumber === null) ? data.check : null
+                        const accountName = data.account
+                        const categoryName = data.category || "Misc"
+                        const xferToAccount = categoryName.startsWith('[')
+                        const payee = data.payee || 'Unknown'
+                        if ((payee === 'Unknown')&&(amount === 0)) {
                             console.log(`reject entry: ${line}`)
                             return
-                        }
-                        let categoryName = "Misc"
-                        if (data.category) {
-                            categoryName = renameAccount(data.category)
-                        }
-                        let xferToAccount = categoryName.startsWith('[')
-                        if (!xferToAccount) {
-                            if (data.payee === "pret etudiant") {
-                                categoryName = "Education:Loan"
-                            } else if (data.memo === "FEER" && categoryName.startsWith("Salary")) {
-                                categoryName = "Income:Pension"
-                            } else if (data.category.length > 0) {
-                                categoryName = renameCategory(data.category)
-                            }
-                        } else {
-                            if (categoryName === "[SunfireGT_2001]") {
-                                categoryName = "Auto:Loan"
-                                xferToAccount = false
-                            } else if (categoryName === "[Unspecified Account]") {
-                                categoryName = "Misc"
-                                xferToAccount = false                           
-                            } else if (categoryName.startsWith("[REER")) {
-                                categoryName = "Invest Exp:REER"
-                                xferToAccount = false                           
-                            } else if (categoryName === "[AMEX]") {
-                                categoryName = "Travel:Business"
-                                xferToAccount = false                           
-                            } else if (categoryName === "[811 T.Kimber]") {
-                                categoryName = "Housing"
-                                xferToAccount = false                           
-                            }
-                        }
-                        if (payee === "c@m") {
-                            categoryName = "Computer:Internet"
                         }
                         entry = {
                             account: accountName,
@@ -383,9 +264,9 @@ async function parseCsvFile(file, userEmail) {
                         if (subitms) {
                             linecount++
                             //console.log(convertAmount(subitms.groups.amount).toFixed(2))
-                            const amnt = convertAmount(subitms.groups.amount)
-                            balance += amnt
-                            deferred_entry.amount += amnt
+                            const amount = convertAmount(subitms.groups.amount)
+                            balance += amount
+                            deferred_entry.amount += amount
                             // console.log(">>>> " + line)
                         }
                     } else {
