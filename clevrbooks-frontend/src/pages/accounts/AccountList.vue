@@ -44,6 +44,7 @@ async function loadAccounts() {
     isLoading.value = true
     try {
         await store.dispatch('accounts/getAllAccounts')
+        await store.dispatch('accounts/getAllCategories')
     } catch (err) {
         errorMsg.value = err.message || 'Failed to load accounts'
     }

@@ -7,6 +7,8 @@ export default {
     state() {
         return {
             accounts: [],
+            categories: {},
+            subcategories: {},
             entries: []
         }
     },

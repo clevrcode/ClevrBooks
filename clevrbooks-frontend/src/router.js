@@ -13,10 +13,9 @@ import NotFound from './pages/NotFound.vue'
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', redirect: '/home' },
-        { path: '/home', name: 'home', component: HomePage },
+        { path: '/', name: 'home', component: HomePage },
         { path: '/accounts/:id', name: 'accountdetail', component: AccountDetail, props: true, meta: { requiresAuth: true }},
-        { path: '/entries/:id', name: 'accountentries', component: AccountEntries, meta: { requiresAuth: true } },
+        { path: '/entries/:id', name: 'accountentries', component: AccountEntries, props: true, meta: { requiresAuth: true } },
         { path: '/accounts', name: 'accounts', component: AccountList, meta: { requiresAuth: true }},
         { path: '/auth', name: 'auth', component: UserAuth, meta: { requiresUnauth: true }},
         { path: '/:notFound(.*)', component: NotFound },

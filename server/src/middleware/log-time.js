@@ -1,4 +1,5 @@
 module.exports = (req, res, next) => {
-    console.log('Time: ', Date.now())
+    const date = new Date(Date.now())
+    console.log('Time: ', date.toLocaleString())
     next()
 }

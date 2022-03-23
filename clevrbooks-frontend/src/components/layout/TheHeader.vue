@@ -1,13 +1,16 @@
 <template>
   <header>
-      <nav>
-          <h1><router-link :to="{ name: 'home' }">ClevrBooks</router-link></h1>
-          <ul>
-              <li v-if="isLoggedIn"><router-link :to="{ name: 'accounts' }">All Accounts</router-link></li>
-              <li v-if="isLoggedIn"><base-button @click="logout">Logout</base-button></li>
-              <li v-else><router-link :to="{ name: 'auth' }">Login</router-link></li>
-          </ul>
-      </nav>
+    <nav>
+      <h1><router-link to="/">ClevrBooks</router-link></h1>
+      <ul>
+          <li v-if="isLoggedIn">
+            <router-link to="/">Home</router-link>
+            <router-link :to="{ name: 'accounts' }">All Accounts</router-link>
+          </li>
+          <li v-if="isLoggedIn"><base-button @click="logout">Logout</base-button></li>
+          <li v-else><router-link :to="{ name: 'auth' }">Login</router-link></li>
+      </ul>
+    </nav>
   </header>
 </template>
 
@@ -25,7 +28,7 @@ const isLoggedIn = computed(() => {
 
 function logout() {
     store.dispatch('logout')
-    router.replace('/home')
+    router.replace('/')
 }
 </script>
 
@@ -36,15 +39,17 @@ header {
   width: 100%;
   height: 5rem;
   background-color: #3d008d;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: fixed;
+  top:0; left: 0;
+  /*width: 100%;
+  z-index: 1;
+  margin: 0; */
 }
 
 header a {
   text-decoration: none;
   color: #f391e3;
-  display: inline-block;
+  /* display: inline-block; */
   padding: 0.75rem 1.5rem;
   border: 1px solid transparent;
 }
@@ -64,7 +69,7 @@ h1 {
 
 h1 a {
   color: white;
-  margin: 0;
+  margin: 0.5rem;
 }
 
 h1 a:hover,
@@ -91,6 +96,10 @@ header ul {
 }
 
 li {
+  margin: 0 0.5rem;
+}
+
+li a {
   margin: 0 0.5rem;
 }
 </style>

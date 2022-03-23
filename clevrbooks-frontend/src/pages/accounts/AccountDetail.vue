@@ -13,53 +13,57 @@
   </div>
 </template>
 
-<script>
-export default {
-    props: ['id'],
-    data() {
-        return {
-            selectedAccount: null
+<script setup>
+    import { ref, computed, onMounted } from 'vue'
+    import { useStore } from 'vuex'
+
+    const props = defineProps(['id'])
+    const store = useStore()
+
+    const selectedAccount = ref(null)
+
+    const accName = computed(() => {
+        return selectedAccount.value ? selectedAccount.value.name : 'UNDEFINED'
+    })
+
+    const description = computed(() => {
+        return selectedAccount.value ? selectedAccount.value.description : ''
+    })
+
+    const initBalance = computed(() => {
+        // return this.selectedAccount.value.initBalance.toFixed(2)
+        return selectedAccount.value ? selectedAccount.value.initBalance.toLocaleString() : "0.00"
+    })
+    
+    const isInitBalanceNegative = computed(() => {
+        return selectedAccount.value ? selectedAccount.value.initBalance < 0.0 : false
+    })
+
+    const currBalance = computed(() => {
+        // return this.selectedAccount.value.currentBalance.toFixed(2)
+        return selectedAccount.value ? selectedAccount.value.currentBalance.toLocaleString() : "0.0"
+    })
+
+    const isCurrBalanceNegative = computed(() => {
+        return selectedAccount.value ? selectedAccount.value.currentBalance < 0.0 : "false"
+    })
+
+    const currency = computed(() => {
+        return selectedAccount.value ? selectedAccount.value.currency : "---"
+    })
+
+    const lastReconcile = computed(() => {
+        if (selectedAccount.value && selectedAccount.value.reconcileAt) {
+            return new Date(selectedAccount.value.reconcileAt).toDateString()
         }
-    },
-    computed: {
-        accName() {
-            return this.selectedAccount.name
-        },
-        description() {
-            return this.selectedAccount.description
-        },
-        initBalance() {
-            // let balance = this.selectedAccount.initBalance
-            // if (balance > -0.009 || balance < 0.009) {
-            //     balance = 0.0
-            // }
-            return this.selectedAccount.initBalance.toFixed(2)
-        },
-        isInitBalanceNegative() {
-            return this.selectedAccount.initBalance < 0.0
-        },
-        currBalance() {
-            return this.selectedAccount.currentBalance.toFixed(2)
-        },
-        isCurrBalanceNegative() {
-            return this.selectedAccount.currentBalance < 0.0
-        },
-        currency() {
-            return this.selectedAccount.currency
-        },
-        lastReconcile() {
-            if (this.selectedAccount.reconcileAt) {
-                const reconcileTime = new Date(this.selectedAccount.reconcileAt)
-                return reconcileTime.toDateString()
-            }
-            return 'No Date'
-        }
-    },
-    created() {
-        const accounts = this.$store.getters['accounts/accounts']
-        this.selectedAccount = accounts.find(acc => acc.id === parseInt(this.id))
-    }
-}
+        return 'No Date'
+    })
+
+    onMounted(() => {
+        // console.log(`AccountDetail.onMounted(${props.id})`)
+        selectedAccount.value = store.getters['accounts/getAccountById'](parseInt(props.id))
+        // console.log(selectedAccount.value)
+    })
 </script>
 
 <style scoped>

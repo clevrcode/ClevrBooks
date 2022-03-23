@@ -18,10 +18,10 @@ module.exports = {
             await User.sequelize.authenticate();
             console.log('Connection has been established successfully.');
             return true
-          } catch (error) {
+        } catch (error) {
             console.error('Unable to connect to the database:', error);
             return false
-          }        
+        }        
     },
 
     async register (req, res) {

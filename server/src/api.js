@@ -29,6 +29,23 @@ router.get('/accounts',
     AccountController.getAllAccounts
 )
 
+router.get('/categories', 
+    checkAuth,    
+    AccountController.getAllCategories
+)
+
+router.param('account_id', function (req, res, next, id) {
+    req.account = {
+        id: id
+    }
+    next()
+})
+
+router.route('/entries/:account_id').get(
+    checkAuth,
+    AccountController.getAccountEntries
+)
+
 router.post('/insert_entry',
     checkAuth,
     AccountController.insertEntry

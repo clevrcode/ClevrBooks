@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-    import { ref, computed } from 'vue'
+    import { ref, computed, onMounted } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
     import { useStore } from 'vuex'
 
@@ -49,10 +49,11 @@
     const router = useRouter()
     const route = useRoute()
 
-    const isModeRegister = computed(() => { return mode.value === 'signup' })
+    const isModeLogin = computed(() => { return mode.value === 'login' })
+    const isModeRegister = computed(() => { return !isModeLogin.value })
 
     const submitButtonCaption = computed(() => {
-        if (mode.value === 'login') {
+        if (isModeLogin.value) {
             return 'Login'
         } else {
             return 'Signup'
@@ -60,7 +61,7 @@
     })
 
     const switchModeButtonCaption = computed(() => {
-        if (mode.value === 'login') {
+        if (isModeLogin.value) {
             return 'Signup instead'
         } else {
             return 'Login instead'
@@ -101,12 +102,21 @@
     }
 
     function switchAuthMode() {
-        if (mode.value === 'login') {
+        if (isModeLogin.value) {
             mode.value = 'signup'
         } else {
             mode.value = 'login'
         }
     }
+
+    onMounted(() => {
+        const userEmail = localStorage.getItem('lastUser')
+        console.log(typeof userEmail)
+        console.log(userEmail)
+        if (typeof userEmail !== 'undefined') {
+            email.value = userEmail
+        }
+    })
 
 </script>
 

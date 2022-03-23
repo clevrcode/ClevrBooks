@@ -1,10 +1,14 @@
 <template>
-  <the-header></the-header>
-  <router-view v-slot="slotProps">
-    <transition name="route" mode="out-in">
-        <component :is="slotProps.Component"></component>
-    </transition>
-  </router-view>
+  <div class="main-app">
+    <the-header></the-header>
+    <div class="main-app__display">
+      <router-view v-slot="slotProps">
+        <transition name="route" mode="out-in">
+            <component :is="slotProps.Component"></component>
+        </transition>
+      </router-view>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -55,6 +59,15 @@ html {
 
 body {
   margin: 0;
+}
+
+/* .main-app {
+  display: flex;
+  flex-direction: column;
+} */
+
+.main-app__display {
+  margin-top: 6rem;
 }
 
 .route-enter-from {

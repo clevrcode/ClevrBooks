@@ -1,3 +1,5 @@
+const withQuery = require('with-query').default
+
 export default {
 
     async getAllAccounts(context) {
@@ -24,5 +26,62 @@ export default {
         // save data in vuex store
         //console.log(responseData)
         context.commit('setAccounts', responseData)
+    },
+
+    async getAllCategories(context) {
+        // console.log('getAllCategories()')
+        const url = context.rootGetters.apiUrl + 'categories'
+        const token = context.rootGetters.token
+
+        const response = await fetch(url, 
+            {
+                method: 'GET',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            }
+        )
+        const responseData = await response.json()
+        if (!response.ok) {
+            // console.log(response)
+            const error = new Error(responseData.message || 'Failed to authenticate')
+            throw error
+        }
+
+        // save data in vuex store
+        // console.log(responseData)
+        context.commit('setCategories', responseData)
+    },
+
+    async getEntriesForAccount(context, params) {
+        // console.log(`getEntriesForAccount(id:${params.id},order:${params.order})`)
+
+        const query = withQuery(context.rootGetters.apiUrl + 'entries/' + params.id, {
+          limit: params.limit,
+          order: params.order
+        })
+        // console.log('Query: ' + query)
+        
+        const token = context.rootGetters.token
+
+        const response = await fetch(query, 
+            {
+                method: 'GET',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            }
+        )
+        const responseData = await response.json()
+        if (!response.ok) {
+            // console.log(response)
+            const error = new Error(responseData.message || 'Failed to authenticate')
+            throw error
+        }
+        // save data in vuex store
+        //console.log(responseData)
+        context.commit('setEntries', responseData)
     }
 }
