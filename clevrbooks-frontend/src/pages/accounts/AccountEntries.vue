@@ -1,11 +1,9 @@
 <template>
   <div>
-    <h1>Entries...</h1>
     <base-dialog :show="!!errorMsg" title="An error occured!" @close="handleError">
       <p>{{ errorMsg }}</p>
     </base-dialog>
     <section>
-      <base-card>
         <div v-if="isLoading">
           <base-spinner></base-spinner>
         </div>
@@ -18,7 +16,6 @@
         <div v-else>
           <h3>No Entries For This Account</h3>
         </div>
-      </base-card>
     </section>
   </div>
 
@@ -79,15 +76,13 @@
 <style scoped>
 ul {
   list-style: none;
-}
-
-li {
-  text-decoration: false;
+  margin: 1rem;
+  padding: 0;
 }
 
 .scroll {
-  background-color: #88f188;
+  background-color: white;
   overflow-y: auto; 
-  height: 800px;
+  height: 100%;
 }
 </style>
