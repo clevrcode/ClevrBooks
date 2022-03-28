@@ -10,11 +10,13 @@
 
 <script setup>
   import { computed } from 'vue'
+  import useMoneyUtilities from '../../moneyUtilities'
 
   // import { useRoute } from 'vue-router'
   // const route = useRoute()
 
   const props = defineProps(['id', 'name', 'balance'])
+  const { getMoneyString, isNegative } = useMoneyUtilities()
 
   // const accountDetailsLink = computed(() => {
   //   return route.path + '/' + props.id
@@ -26,15 +28,11 @@
   })
   
   const currentBalance = computed(() => {
-    if (props.balance > -0.01 && props.balance < 0.01) {
-      return "0.00"
-    }
-    // return this.balance.toFixed(2)
-    return props.balance.toLocaleString()
+    return getMoneyString(props.balance)
   })
 
   const balanceIsNegative = computed(() => {
-    return props.balance <= -0.01
+    return isNegative(props.balance)
   })
  
 </script>

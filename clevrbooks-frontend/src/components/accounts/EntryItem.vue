@@ -7,7 +7,7 @@
             <div class="checked">{{getChecked}}</div>
             <div class="payment">{{getPayment}}</div>
             <div class="amount">{{getAmount}}</div>
-            <div class="balance">{{getBalance}}</div>
+            <div class="balance" :class="{negative: balanceIsNegative}">{{getBalance}}</div>
             <div class="category">{{getCategory}}</div>
             <div class="memo">{{entry.memo}}</div>
             <button class="edit" @click="editEntry">Edit</button>
@@ -19,6 +19,9 @@
 <script setup>
     import { computed } from 'vue'
     import { useStore } from 'vuex'
+    import useMoneyUtilities from '../../moneyUtilities'
+    
+    const { getMoneyString, isNegative } = useMoneyUtilities()
 
     // const route = useRoute()
     const store = useStore()
@@ -26,7 +29,7 @@
     const props = defineProps(['entry', 'balance'])
 
     const getCharge = computed(() => {
-        return props.entry.amount < 0 ? (-props.entry.amount).toLocaleString(undefined, {minimumFractionDigits: 2}) : ""
+        return props.entry.amount < 0 ? getMoneyString(-props.entry.amount) : ""
     })
 
     const getChecked = computed(() => {
@@ -34,15 +37,18 @@
     })
 
     const getPayment = computed(() => {
-        return props.entry.amount >= 0 ? props.entry.amount.toLocaleString(undefined, {minimumFractionDigits: 2}) : ""
+        return props.entry.amount >= 0 ? getMoneyString(props.entry.amount) : ""
     })
 
     const getAmount = computed(() => {
-        return props.entry.amount.toLocaleString(undefined, {minimumFractionDigits: 2})
+        return getMoneyString(props.entry.amount)
     })
 
     const getBalance = computed(() => {
-        return props.balance.toLocaleString(undefined, {minimumFractionDigits: 2})
+        return getMoneyString(props.balance)
+    })
+    const balanceIsNegative = computed(() => {
+        return isNegative(props.balance)
     })
 
     const getCategory = computed(() => {
@@ -150,6 +156,10 @@ li {
     grid-area: memo;
     border: 1px solid black;
     background-color: #faf9cb;
+}
+
+.negative {
+    color: red;
 }
 
 .edit {
