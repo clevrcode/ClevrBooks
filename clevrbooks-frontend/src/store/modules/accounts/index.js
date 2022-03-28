@@ -9,7 +9,8 @@ export default {
             accounts: [],
             categories: {},
             subcategories: {},
-            entries: []
+            entries: [],
+            currentAccount: null
         }
     },
     mutations,

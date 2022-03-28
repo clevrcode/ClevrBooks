@@ -1,27 +1,25 @@
 <template>
-    <!-- <li @click="accountEntries"> -->
     <li>
-        <h3>{{ name }}</h3>
-        <h4 :class="{negative: balanceIsNegative}">${{ currentBalance }}</h4>
-        <div class="actions">
-            <base-button link :to="accountEntriesLink">View Entries</base-button>
-            <base-button link :to="accountDetailsLink">View Details</base-button>
+        <div class="account-item">
+            <router-link :to="accountEntriesLink">{{ name }}</router-link>
+            <!-- <a :href="accountEntriesLink">{{ name }}</a> -->
+            <div class="acc-balance" :class="{negative: balanceIsNegative}">${{ currentBalance }}</div>
         </div>
     </li>
 </template>
 
 <script setup>
   import { computed } from 'vue'
-  import { useRoute } from 'vue-router'
 
-  const route = useRoute()
+  // import { useRoute } from 'vue-router'
+  // const route = useRoute()
 
   const props = defineProps(['id', 'name', 'balance'])
 
-  const accountDetailsLink = computed(() => {
-    return route.path + '/' + props.id
-    // return { name: 'accountdetail', params: { id: this.id } }
-  })
+  // const accountDetailsLink = computed(() => {
+  //   return route.path + '/' + props.id
+  //   // return { name: 'accountdetail', params: { id: this.id } }
+  // })
 
   const accountEntriesLink = computed(() => {
     return '/entries/' + props.id
@@ -42,28 +40,19 @@
 </script>
 
 <style scoped>
-li {
-  margin: 1rem 0;
-  border: 1px solid #424242;
-  border-radius: 12px;
-  padding: 1rem;
+a {
+    color: black;
+    text-decoration: none;
+}
+a:hover {
+    color: white;
 }
 
-h3 {
-  font-size: 1.5rem;
-}
-
-h3,
-h4 {
-  margin: 0.5rem 0;
-}
-div {
-  margin: 0.5rem 0;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
+.account-item {
+    display: flex;
+    margin: 0.5rem;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .negative {

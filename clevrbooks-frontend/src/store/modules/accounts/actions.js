@@ -65,23 +65,30 @@ export default {
         
         const token = context.rootGetters.token
 
-        const response = await fetch(query, 
-            {
-                method: 'GET',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
+        try {
+            const response = await fetch(query, 
+                {
+                    method: 'GET',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    }
                 }
+            )
+            const responseData = await response.json()
+            if (!response.ok) {
+                const error = new Error(responseData.message || 'Access violation')
+                throw error
             }
-        )
-        const responseData = await response.json()
-        if (!response.ok) {
-            // console.log(response)
-            const error = new Error(responseData.message || 'Failed to authenticate')
+            // save data in vuex store
+            context.commit('setEntries', { accountId: params.id, entries: responseData })
+        } catch (error) {
+            console.log(error)
             throw error
         }
-        // save data in vuex store
-        //console.log(responseData)
-        context.commit('setEntries', responseData)
+    },
+
+    clearAllAccounts(context) {
+        context.commit('clearAccounts')
     }
 }

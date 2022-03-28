@@ -1,14 +1,21 @@
 <template>
   <header>
-    <nav>
-      <h1><router-link to="/">ClevrBooks</router-link></h1>
-      <ul>
-          <li v-if="isLoggedIn">
+    <div class="header-brand">
+      <router-link to="/">ClevrBooks</router-link>
+    </div>
+    <nav class="header-nav">
+      <ul class="header-nav__items">
+          <li class="header-nav__item" v-if="isLoggedIn">
             <router-link to="/">Home</router-link>
-            <router-link :to="{ name: 'accounts' }">All Accounts</router-link>
           </li>
-          <li v-if="isLoggedIn"><base-button @click="logout">Logout</base-button></li>
-          <li v-else><router-link :to="{ name: 'auth' }">Login</router-link></li>
+          <div>
+            <li class="header-nav__item" v-if="isLoggedIn">
+              <base-button @click="logout">Logout</base-button>
+            </li>
+            <li class="header-nav__item" v-else>
+              <router-link :to="{ name: 'auth' }">Login</router-link>
+            </li>
+          </div>
       </ul>
     </nav>
   </header>
@@ -28,6 +35,7 @@ const isLoggedIn = computed(() => {
 
 function logout() {
     store.dispatch('logout')
+    store.dispatch('accounts/clearAllAccounts')
     router.replace('/')
 }
 </script>
@@ -36,70 +44,49 @@ function logout() {
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Charm:wght@700&display=swap');
 
 header {
-  width: 100%;
-  height: 5rem;
-  background-color: #3d008d;
-  position: fixed;
-  top:0; left: 0;
-  /*width: 100%;
-  z-index: 1;
-  margin: 0; */
+  background: #3d008d;
+  /* padding: 0.5rem 1rem; */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-header a {
-  text-decoration: none;
-  color: #f391e3;
-  /* display: inline-block; */
-  padding: 0.75rem 1.5rem;
-  border: 1px solid transparent;
-}
-
-a:active,
-a:hover,
-a.router-link-active {
-    color: yellow;
-    border: 1px solid #f391e3;
-}
-
-h1 {
+.header-brand {
   margin: 0;
   font-family: 'Charm', cursive;
-  font-size: 300%;
+  font-size: 3rem;
 }
 
-h1 a {
+.header-brand a {
+  text-decoration: none;
   color: white;
   margin: 0.5rem;
 }
 
-h1 a:hover,
-h1 a:active,
-h1 a.router-link-active {
-  border-color: transparent;
-}
-
-header nav {
-  width: 90%;
-  margin: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header ul {
+.header-nav__items {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0.5rem;
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
-li {
+.header-nav__item {
   margin: 0 0.5rem;
+  padding: 0.5rem;
 }
 
-li a {
-  margin: 0 0.5rem;
+.header-nav__item a {
+  text-decoration: none;
+  color: #f391e3;
+  padding: 1rem;
+  border: none;
+}
+
+.header-nav__item a:active,
+.header-nav__item a:hover,
+.header-nav__item a.router-link-active {
+    color: yellow;
+    border: 1px solid #f391e3;
 }
 </style>

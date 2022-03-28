@@ -28,5 +28,14 @@ export default {
 
     hasEntries(state) {
         return state.entries && state.entries.length > 0
+    },
+
+    getCurrentAccountName(state) {
+        if (state.currentAccount) {
+            console.log('current account: ' + typeof state.currentAccount)
+            const account = state.accounts.find(acc => acc.id === state.currentAccount)
+            return account ? account.name : 'Unknown'
+        }
+        return ''
     }
 }

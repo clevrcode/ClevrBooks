@@ -21,4 +21,6 @@ app.component('base-spinner', BaseSpinner)
 app.component('base-dialog', BaseDialog)
 // app.component('base-badge', BaseBadge)
 
-app.mount('#app')
+router.isReady().then(() => {
+    app.mount('#app')
+})

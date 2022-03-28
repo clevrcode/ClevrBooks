@@ -93,6 +93,7 @@ const insertAccount = async (acct) => {
             // console.log(`Create acount for user '${user.name}'`)
             const account = await Account.create({ name: acct.name, 
                 description: acct.description,
+                type: acct.type,
                 initBalance: acct.initBalance,
                 currentbalance: acct.currentbalance,
                 currency: acct.currency,

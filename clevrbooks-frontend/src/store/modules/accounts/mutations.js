@@ -3,7 +3,8 @@ export default {
         state.accounts = payload
     },
     setEntries(state, payload) {
-        state.entries = payload
+        state.currentAccount = parseInt(payload.accountId)
+        state.entries = payload.entries
     },
     setCategories(state, payload) {
         for (const cat of payload.categories) {
@@ -14,5 +15,12 @@ export default {
             state.subcategories[subcat.id] = { name: subcat.name, category: subcat.category }
         }
         // console.log(state.subcategories)
+    },
+    clearAccounts(state) {
+        state.accounts = []
+        state.categories = {}
+        state.subcategories = {}
+        state.entries = []
+        state.currentAccount = null
     }
 }

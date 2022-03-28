@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     description: DataTypes.STRING,
+    type: DataTypes.STRING,
     initBalance: {
       allowNull: false,
       type: DataTypes.FLOAT,

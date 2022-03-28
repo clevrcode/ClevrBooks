@@ -34,7 +34,7 @@
 
 <script setup>
     import { ref, computed, onMounted } from 'vue'
-    import { useRouter, useRoute } from 'vue-router'
+    import { useRouter } from 'vue-router'
     import { useStore } from 'vuex'
 
     const isLoading = ref(false)
@@ -47,7 +47,7 @@
     const mode = ref('login')
     const store = useStore()
     const router = useRouter()
-    const route = useRoute()
+    // const route = useRoute()
 
     const isModeLogin = computed(() => { return mode.value === 'login' })
     const isModeRegister = computed(() => { return !isModeLogin.value })
@@ -93,8 +93,14 @@
         }
         try {
             await store.dispatch(mode.value, payload)
-            const redirectUrl = '/' + (route.query.redirect || 'accounts')
-            router.replace(redirectUrl)
+            try {
+                await store.dispatch('accounts/getAllAccounts')
+                await store.dispatch('accounts/getAllCategories')
+            } catch (err) {
+                error.value = err.message || 'Failed to load accounts'
+            }
+            // const redirectUrl = '/' + (route.query.redirect || 'accounts')
+            router.replace("/")
         } catch (err) {
             error.value = err.message || 'Authentication failed!'
         }
@@ -111,8 +117,8 @@
 
     onMounted(() => {
         const userEmail = localStorage.getItem('lastUser')
-        console.log(typeof userEmail)
-        console.log(userEmail)
+        // console.log(typeof userEmail)
+        // console.log(userEmail)
         if (typeof userEmail !== 'undefined') {
             email.value = userEmail
         }
