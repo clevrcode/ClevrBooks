@@ -1,5 +1,5 @@
 <template>
-    <li class="entry_item">
+    <li class="entry_item" :class="{entrychecked: isEntryChecked}">
         <div class="entry-grid">
             <div class="date">{{entry.date}}</div>
             <div class="payee">{{entry.payee}}</div>
@@ -8,7 +8,7 @@
             <div class="payment">{{getPayment}}</div>
             <div class="amount">{{getAmount}}</div>
             <div class="balance" :class="{negative: balanceIsNegative}">{{getBalance}}</div>
-            <div class="category">{{getCategory}}</div>
+            <div class="category" :class="{xfer: entry.xferToAccount}">{{entry.category}}</div>
             <div class="memo">{{entry.memo}}</div>
             <button class="edit" @click="editEntry">Edit</button>
             <button class="delete" @click="deleteEntry">Delete</button>
@@ -18,13 +18,13 @@
 
 <script setup>
     import { computed } from 'vue'
-    import { useStore } from 'vuex'
+    // import { useStore } from 'vuex'
     import useMoneyUtilities from '../../moneyUtilities'
     
     const { getMoneyString, isNegative } = useMoneyUtilities()
 
     // const route = useRoute()
-    const store = useStore()
+    // const store = useStore()
 
     const props = defineProps(['entry', 'balance'])
 
@@ -34,6 +34,10 @@
 
     const getChecked = computed(() => {
         return props.entry.cleared ? "R" : ""
+    })
+
+    const isEntryChecked = computed(() => {
+        return props.entry.cleared
     })
 
     const getPayment = computed(() => {
@@ -51,24 +55,24 @@
         return isNegative(props.balance)
     })
 
-    const getCategory = computed(() => {
-        let category = ''
-        if (props.entry.xferToAccount) {
-            const account = store.getters['accounts/getAccountById'](props.entry.category).name
-            category = '[' + account + ']'
-        } else {
-            category = store.getters['accounts/getCategoryById'](props.entry.category).name
-            if (props.entry.subcategory) {
-                const subcategory = store.getters['accounts/getSubcategoryById'](props.entry.subcategory)
-                if (subcategory.category === props.entry.category) {
-                    category += ':' + subcategory.name
-                } else {
-                    console.log(`Category mismatch ${category}(${props.entry.category}):${subcategory.name}(${props.entry.subcategory})`)
-                }
-            }
-        }
-        return category
-    })
+    // const getCategory = computed(() => {
+    //     let category = ''
+    //     if (props.entry.xferToAccount) {
+    //         const account = store.getters['accounts/getAccountById'](props.entry.category).name
+    //         category = '[' + account + ']'
+    //     } else {
+    //         category = store.getters['accounts/getCategoryById'](props.entry.category).name
+    //         if (props.entry.subcategory) {
+    //             const subcategory = store.getters['accounts/getSubcategoryById'](props.entry.subcategory)
+    //             if (subcategory.category === props.entry.category) {
+    //                 category += ':' + subcategory.name
+    //             } else {
+    //                 console.log(`Category mismatch ${category}(${props.entry.category}):${subcategory.name}(${props.entry.subcategory})`)
+    //             }
+    //         }
+    //     }
+    //     return category
+    // })
 
     function editEntry() {
         console.log("editEntry " + props.entry.payee)
@@ -89,6 +93,10 @@ li {
   /* border-radius: 12px; */
   padding: 0;
   font-size: 1rem;
+}
+
+.entrychecked {
+    color: #777;
 }
 
 .entry_item span {
@@ -150,6 +158,10 @@ li {
 .category {
     grid-area: category;
     border: 1px solid black;
+}
+
+.xfer {
+    background: greenyellow;
 }
 
 .memo {

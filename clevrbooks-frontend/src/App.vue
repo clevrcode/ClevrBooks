@@ -1,5 +1,8 @@
 <template>
   <div class="main-app">
+    <base-dialog :show="!!errorMsg" title="An error occured!" @close="handleError">
+      <p>{{ errorMsg }}</p>
+    </base-dialog>
     <the-header class="the-header"></the-header>
     <div class="main-app__display">
       <the-sidebar class="main-app__sidebar"></the-sidebar>
@@ -25,13 +28,32 @@ export default {
     TheSidebar,
     TheFooter
   },
+  data() {
+    return {
+      errorMsg: null
+    }
+  },
   computed: {
     didAutoLogout() {
       return this.$store.getters.didAutoLogout
     }
   },
-  created() {
+  methods: {
+    handleError() {
+      this.errorMsg = null
+    }
+  },
+  async mounted() {
+    // console.log('App.mounted() call autoLogin')
     this.$store.dispatch('autoLogin')
+    if (this.$store.getters.isAuthenticated) {
+      try {
+        await this.$store.dispatch('accounts/getAllAccounts')
+        await this.$store.dispatch('accounts/getAllCategories')
+      } catch (err) {
+        this.errorMsg = err.message || 'Failed to load accounts'
+      }
+    }
   },
   watch: {
     didAutoLogout(curValue, oldValue) {
@@ -40,7 +62,6 @@ export default {
         this.$router.replace('/')
       }
     }
-
   }
 }
 </script>

@@ -7,8 +7,28 @@
         <div class="spinner" v-if="isLoading">
           <base-spinner></base-spinner>
         </div>
-        <div class="scroll" v-else-if="hasEntries" >
-          <p class="account-header">{{ currentAccountName }}</p>
+        <div class="ledger" v-else-if="hasEntries" >
+          <div class="account-header">
+            <p class="account-header__name">{{ currentAccountName }}</p>
+            <div class="account-header__filters">
+              <div class="account-header__filter-dates">
+                <select name="datefilter" id="date-select" v-model="selected">
+                  <option v-for="option in options" :key="option.value" :value="option.value">
+                      {{ option.text }}
+                  </option>
+                </select>
+              </div>
+              <div class="account-header__search">
+                  <label for="search">Search:</label>
+                  <input id="search" name="Search" type="search" v-model.trim="searchEntry" autocomplete="search"/>
+                    <svg role="presentation" class="i-search" viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
+                      <circle cx="14" cy="14" r="12" />
+                      <path d="M23 23 L30 30" />
+                    </svg>
+                  <!-- <input type="search" id="searchbox" v-model.trim="searchEntry"> -->
+              </div>
+            </div>
+          </div>
           <ul>
               <entry-item v-for="entry in entries" :key="entry.data.id" :entry="entry.data" :balance="entry.balance">
               </entry-item>
@@ -34,19 +54,59 @@
   const route = useRoute()
   const isLoading = ref(true)
   const errorMsg = ref(null)
+  const searchEntry = ref('')
+  const allEntries = ref([])
+  const selected = ref('')
+  const startDate = ref(null)
+  const endDate = ref(null)
+  const options = ref([
+      { value: ""           , text: "--All Dates--"  },
+      { value: "thismonth"  , text: "This Month"     },
+      { value: "lastmonth"  , text: "Last Month"     },
+      { value: "30days"     , text: "Last 30 Days"   },
+      { value: "60days"     , text: "Last 60 Days"   },
+      { value: "90days"     , text: "Last 90 Days"   },
+      { value: "12month"    , text: "Last 12 Months" },
+      { value: "thisquarter", text: "This Quarter"   },
+      { value: "lastquarter", text: "Last Quarter"   },
+      { value: "thisyear"   , text: "This Year"      },
+      { value: "lastyear"   , text: "Last Year"      },
+      { value: "custom"     , text: "Custom..."      }
+  ])
 
   const entries = computed(() => {
     const result = []
-    let balance = 0.0
-    for (let entry of store.getters['accounts/entries']) {
-      balance += entry.amount
-      result.push({
-        data: entry,
-        balance: balance
-      })
+    // console.log("compute filtered entries")
+    for (let entry of allEntries.value) {
+      let pushEntry = true
+      // First apply the date filter
+      if (startDate.value) {
+        // console.log('check start date')
+        pushEntry = entry.data.date >= startDate.value
+      }
+      if (pushEntry && endDate.value) {
+        // console.log('check end date')
+        pushEntry = entry.data.date <= endDate.value
+      }
+      // Then, apply the search filter
+      if (pushEntry && searchEntry.value.length > 0) {
+        // console.log('check search filter')
+        const searchkey = searchEntry.value.toLowerCase()
+        pushEntry = entry.data.payee.toLowerCase().includes(searchkey) || 
+                    entry.data.memo.toLowerCase().includes(searchkey) ||
+                    entry.data.category.toLowerCase().includes(searchkey)
+      }
+      if (pushEntry) {
+        // console.log('push entry')
+        result.push({
+          data: entry.data,
+          balance: entry.balance
+        })
+      }
     }
     return result
   })
+
   const hasEntries = computed(() => {
       return !isLoading.value && store.getters['accounts/hasEntries']
   })
@@ -59,17 +119,131 @@
   watch(() => route.params.id,
       newId => {
         if (typeof newId !== 'undefined' ) {
+          searchEntry.value = ''
+          startDate.value = null
+          endDate.value = null
+          selected.value = ""
           loadEntries(newId)
         }
       }
   )
 
+  watch(selected, newValue => {
+    const Quarters = [
+        { start: "01-01", end: "03-31"},
+        { start: "04-01", end: "06-30"},
+        { start: "07-01", end: "09-30"},
+        { start: "10-01", end: "12-31"}
+    ]
+
+    console.log(newValue)
+    if (newValue.length > 0) {
+      const date = new Date()
+      console.log(date.toLocaleString().substring(0,10))
+      if (newValue === "thismonth") {
+        const sDate = new Date(date.getFullYear(), date.getMonth(), 1)
+        startDate.value = sDate.toLocaleString().substring(0,10)
+        endDate.value = null
+        console.log(`startDate: ${startDate.value}`)
+      } else if (newValue === "lastmonth") {
+        const month = (((date.getMonth() - 1) + 11) % 12) + 1
+        const year = month === 12 ? date.getFullYear() - 1 : date.getFullYear()
+        const sDate = new Date(year, month, 1)
+        startDate.value = sDate.toLocaleString().substring(0,10)
+        const eDate = new Date(date.setDate(0))
+        endDate.value = eDate.toLocaleString().substring(0,10)
+        console.log(`start Date: ${startDate.value}`)
+        console.log(`end Date  : ${endDate.value}`)
+      } else if (newValue === "30days") {
+        const sDate = new Date(new Date().setDate(date.getDate() - 30));
+        startDate.value = sDate.toLocaleString().substring(0,10)
+        endDate.value = null
+        console.log(`start Date: ${startDate.value}`)
+      } else if (newValue === "60days") {
+        const sDate = new Date(new Date().setDate(date.getDate() - 60));
+        startDate.value = sDate.toLocaleString().substring(0,10)
+        endDate.value = null
+        console.log(`start Date: ${startDate.value}`)
+      } else if (newValue === "90days") {
+        const sDate = new Date(new Date().setDate(date.getDate() - 90));
+        startDate.value = sDate.toLocaleString().substring(0,10)
+        endDate.value = null
+        console.log(`start Date: ${startDate.value}`)
+      } else if (newValue === "12month") {
+        const sDate = new Date(date.getFullYear()-1, date.getMonth(), date.getDate());
+        startDate.value = sDate.toLocaleString().substring(0,10)
+        endDate.value = null
+        console.log(`start Date: ${startDate.value}`)
+      } else if (newValue === "thisquarter") {
+        const idx = Math.floor(date.getMonth() / 3)
+        console.log(idx)
+        startDate.value = `${date.getFullYear()}-${Quarters[idx].start}`
+        endDate.value = `${date.getFullYear()}-${Quarters[idx].end}`
+        console.log(`start Date: ${startDate.value}`)
+        console.log(`end Date  : ${endDate.value}`)
+      } else if (newValue === "lastquarter") {
+        let idx = Math.floor(date.getMonth() / 3)
+        const idx2 = (idx + 3) % 4
+        const year = idx2 > idx ? date.getFullYear() - 1 : date.getFullYear()
+        console.log(idx2)
+        startDate.value = `${year}-${Quarters[idx2].start}`
+        endDate.value = `${year}-${Quarters[idx2].end}`
+        console.log(`start Date: ${startDate.value}`)
+        console.log(`end Date  : ${endDate.value}`)
+      } else if (newValue === "thisyear") {
+        const sDate = new Date(date.getFullYear(), 0, 1);
+        startDate.value = sDate.toLocaleString().substring(0,10)
+        endDate.value = null
+        console.log(`start Date: ${startDate.value}`)
+      } else if (newValue === "lastyear") {
+        const sDate = new Date(date.getFullYear()-1, 0, 1);
+        startDate.value = sDate.toLocaleString().substring(0,10)
+        endDate.value = new Date(new Date(date.getFullYear(), 0, 1).setDate(0)).toLocaleString().substring(0,10);
+        console.log(`start Date: ${startDate.value}`)
+        console.log(`end Date  : ${endDate.value}`)
+      }
+    } else {
+      console.log("no filter")
+      startDate.value = null
+      endDate.value = null
+    }
+  })
+  
+  function getCategory(entry) {
+    let category = ''
+    if (entry.xferToAccount) {
+        const account = store.getters['accounts/getAccountById'](entry.category).name
+        category = '[' + account + ']'
+    } else {
+        category = store.getters['accounts/getCategoryById'](entry.category).name
+        if (entry.subcategory) {
+            const subcategory = store.getters['accounts/getSubcategoryById'](entry.subcategory)
+            if (subcategory.category === entry.category) {
+                category += ':' + subcategory.name
+            } else {
+                console.log(`Category mismatch ${category}(${entry.category}):${subcategory.name}(${entry.subcategory})`)
+            }
+        }
+    }
+    return category
+  }
 
 
   async function loadEntries(id) {
       isLoading.value = true
+      allEntries.value = []
       try {
           await store.dispatch('accounts/getEntriesForAccount', { id, order: 'ASC', limit: 0 })
+          let balance = 0.0
+          for (let entry of store.getters['accounts/entries']) {
+            balance += entry.amount
+            const newEntry = entry
+            newEntry.category = getCategory(entry)
+            allEntries.value.push({
+              data: newEntry,
+              balance: balance
+            })
+          }
       } catch (err) {
           errorMsg.value = err.message || 'Failed to load accounts'
       }
@@ -97,6 +271,7 @@ ul {
   list-style: none;
   margin: 1rem;
   padding: 0;
+  overflow-y: auto;
 }
 
 .spinner {
@@ -104,15 +279,48 @@ ul {
   height: 100%;
 }
 
-.scroll {
-  background-color: white;
-  overflow-y: auto; 
+.ledger {
+  display: flex;
+  flex-direction: column;
+  background-color: white; 
   height: 100%;
 }
 
 .account-header {
-  text-align: center;
+  display: flex;
+  background: #ddd;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.account-header__filters {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.account-header__search {
+  padding: 0 1rem;
+}
+
+.account-header__name {
+  margin: 0;
+  /* text-align: center; */
   font-size: 2rem;
+}
+
+#search {
+  width: 3rem;
+}
+
+#search:focus {
+  width: 10rem;
+}
+
+#search + svg {
+  visibility: hidden;
+}
+#search:placeholder-shown + svg {
+  visibility: visible;
 }
 
 </style>

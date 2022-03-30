@@ -6,7 +6,7 @@ export default {
         return state.token
     },
     isAuthenticated(state) {
-        //console.log(state.token)
+        // console.log(state.token)
         return !!state.token
     },
     apiUrl(state) {
