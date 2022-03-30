@@ -8,6 +8,7 @@ const jwtkey = process.env.JWT_SECRET
 
 module.exports = (req, res, next) => {
     try {
+        console.log('check authentication')
         const token = req.headers.authorization.split(" ")[1]
         // console.log("check-auth: " + token)
         const decoded = jwt.verify(token, jwtkey)

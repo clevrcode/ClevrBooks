@@ -48,29 +48,6 @@ module.exports = {
 
 
     async getAccountEntries (req, res) {
-        // First make sure the requested account belongs to the user
-        try {
-            const acc = await Account.findOne({
-                where: {
-                    id: req.account.id,
-                    userId: req.userData.userId
-                }
-            })
-            if (!acc) {
-                console.error(`Account '${req.account.id}' doesn't belong to user: ${req.userData.userId}!'`)
-                res.status(401).send({
-                    error: 'No Permission'
-                })
-                return
-            }
-        } catch (error) {
-            console.log(error)
-            res.status(500).send({
-                error: error 
-            })
-            return
-        }
-
         console.log('Account: ' + req.account.id)
         console.log('Query: ' + req.query.order + ',' + req.query.limit)
         let sortOrder = 'ASC'
@@ -107,6 +84,14 @@ module.exports = {
     },
 
     async insertEntry (req, res) {
+
+    },
+
+    async updateEntry (req, res) {
+
+    },
+
+    async deleteEntry (req, res) {
 
     },
 

@@ -4,7 +4,7 @@ const AuthenticationController = require('./controllers/AuthenticationController
 const AccountController = require('./controllers/AccountController')
 const logTime = require('./middleware/log-time')
 const checkAuth = require('./middleware/check-auth')
-
+const validateAccount = require('./middleware/validate-account')
 
 // Log current time middleware
 router.use(logTime)
@@ -34,21 +34,32 @@ router.get('/categories',
     AccountController.getAllCategories
 )
 
-router.param('account_id', function (req, res, next, id) {
-    req.account = {
-        id: id
-    }
-    next()
-})
+// router.param('accountId', async function (req, res, next, id, name) {
+//     // Account validated    
+//     req.account = {
+//         id: id
+//     }
+//     console.log(`Account param ${name}:${id} validated`)
+//     next()
+// })
 
-router.route('/entries/:account_id').get(
-    checkAuth,
-    AccountController.getAccountEntries
-)
 
-router.post('/insert_entry',
-    checkAuth,
-    AccountController.insertEntry
-)
+router.route('/account/:accountId')
+    .get(
+        checkAuth,
+        validateAccount,
+        AccountController.getAccountEntries
+    )
+    .post(
+        checkAuth,
+        validateAccount,
+        AccountController.insertEntry
+    )
+    // .put(
+    //     checkAuth,
+    //     AccountController.updateEntry
+    // )
+
+
 
 module.exports = router

@@ -2,7 +2,6 @@
     <li>
         <div class="account-item">
             <router-link :to="accountEntriesLink">{{ name }}</router-link>
-            <!-- <a :href="accountEntriesLink">{{ name }}</a> -->
             <div class="acc-balance" :class="{negative: balanceIsNegative}">${{ currentBalance }}</div>
         </div>
     </li>
@@ -24,7 +23,7 @@
   // })
 
   const accountEntriesLink = computed(() => {
-    return '/entries/' + props.id
+    return '/account/' + props.id
   })
   
   const currentBalance = computed(() => {

@@ -11,6 +11,9 @@
           <div class="account-header">
             <p class="account-header__name">{{ currentAccountName }}</p>
             <div class="account-header__filters">
+              <div class="account-header__add-entry" @click="addEntry">
+                <span class="material-icons-outlined">add</span>
+              </div>
               <div class="account-header__filter-dates">
                 <select name="datefilter" id="date-select" v-model="selected">
                   <option v-for="option in options" :key="option.value" :value="option.value">
@@ -19,13 +22,8 @@
                 </select>
               </div>
               <div class="account-header__search">
-                  <label for="search">Search:</label>
+                  <span class="material-icons-outlined">search</span>
                   <input id="search" name="Search" type="search" v-model.trim="searchEntry" autocomplete="search"/>
-                    <svg role="presentation" class="i-search" viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
-                      <circle cx="14" cy="14" r="12" />
-                      <path d="M23 23 L30 30" />
-                    </svg>
-                  <!-- <input type="search" id="searchbox" v-model.trim="searchEntry"> -->
               </div>
             </div>
           </div>
@@ -209,6 +207,11 @@
     }
   })
   
+  function addEntry() {
+    console.log("addEntry()")
+    
+  }
+
   function getCategory(entry) {
     let category = ''
     if (entry.xferToAccount) {
@@ -263,6 +266,8 @@
 </script>
 
 <style scoped>
+@import 'material-icons/iconfont/material-icons.css';
+
 section {
   height: 100%;
 }
@@ -293,12 +298,28 @@ ul {
   align-items: center;
 }
 
+/* .account-header__add-entry {
+  border: 1px solid black;
+  border-radius: 4px;
+} */
+.account-header__add-entry:hover {
+  cursor: pointer;
+  background: white;
+}
+
 .account-header__filters {
   display: flex;
   justify-content: space-evenly;
+  align-items: center;
+}
+
+.account-header__filter-dates {
+  padding: 0 1rem;
 }
 
 .account-header__search {
+  display:flex;
+  align-items: center;
   padding: 0 1rem;
 }
 

@@ -57,7 +57,7 @@ export default {
     async getEntriesForAccount(context, params) {
         // console.log(`getEntriesForAccount(id:${params.id},order:${params.order})`)
 
-        const query = withQuery(context.rootGetters.apiUrl + 'entries/' + params.id, {
+        const query = withQuery(context.rootGetters.apiUrl + 'account/' + params.id, {
           limit: params.limit,
           order: params.order
         })
@@ -90,5 +90,34 @@ export default {
 
     clearAllAccounts(context) {
         context.commit('clearAccounts')
+    },
+
+    async addEntry(context, params) {
+
+        const query = withQuery(context.rootGetters.apiUrl + 'account/' + params.id)  
+        const token = context.rootGetters.token
+  
+        try {
+            const response = await fetch(query, 
+                {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    }
+                }
+            )
+            
+            const responseData = await response.json()
+            if (!response.ok) {
+                const error = new Error(responseData.message || 'Access violation')
+                throw error
+            }
+            // save data in vuex store
+            // context.commit('setEntries', { accountId: params.id, entries: responseData })
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
     }
 }

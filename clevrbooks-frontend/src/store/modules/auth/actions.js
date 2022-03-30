@@ -65,7 +65,7 @@ export default {
         if (expiresIn < 60000) {
             return
         }
-
+        console.log(`token expires at: ${new Date(+tokenExpiration).toLocaleString()}`)
         timer = setTimeout(function() {
             context.dispatch('autoLogout')
         }, expiresIn)
