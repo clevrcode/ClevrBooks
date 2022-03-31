@@ -76,6 +76,7 @@ export default {
 
 html {
   height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -88,6 +89,7 @@ body {
 .main-app {
   height: 100%;
   display: grid;
+  overflow-x: hidden;
   grid-template-rows: 5rem calc(100vh - 8rem) 3rem;
   grid-template-areas: "header"
                         "main"
@@ -117,11 +119,13 @@ body {
 
 .main-app__sidebar {
   width: 20%;
+  overflow-x: hidden;
 }
 
 .main-app__content {
   width: 80%;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .the-footer {

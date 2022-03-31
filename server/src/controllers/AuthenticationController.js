@@ -64,13 +64,13 @@ module.exports = {
                     console.log("Password is valid!")
                     // Create a JSON Web Token JWT
                     const token = jwt.sign({
-                        email: user.email,
-                        userId: user.id
-                    }, 
-                    jwtkey,
-                    { 
-                        expiresIn: jwtexpires
-                    })
+                            email: user.email,
+                            userId: user.id
+                        }, 
+                        jwtkey,
+                        { 
+                            expiresIn: jwtexpires
+                        })
                     res.status(200).json({
                         message: 'Authentication successful',
                         userId: user.id,
@@ -81,12 +81,12 @@ module.exports = {
                 } else {
                     console.error('Invalid password!')
                     res.status(401).send({
-                        error: 'Invalid user'
+                        error: 'Authentication failed'
                     })    
                 }
             }
         } catch (err) {
-            console.error('Authentication failed')
+            console.error('Server Error')
             res.status(500).send({
                 error: err
             })

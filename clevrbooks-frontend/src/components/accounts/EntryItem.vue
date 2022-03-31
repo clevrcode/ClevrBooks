@@ -4,7 +4,7 @@
             <div class="date">{{entry.date}}</div>
             <div class="payee">{{entry.payee}}</div>
             <div class="charge">{{getCharge}}</div>
-            <div class="checked">{{getChecked}}</div>
+            <div class="checked"><span class="material-icons-outlined">{{getChecked}}</span></div>
             <div class="payment">{{getPayment}}</div>
             <div class="amount">{{getAmount}}</div>
             <div class="balance" :class="{negative: balanceIsNegative}">{{getBalance}}</div>
@@ -33,7 +33,7 @@
     })
 
     const getChecked = computed(() => {
-        return props.entry.cleared ? "R" : ""
+        return props.entry.cleared ? "done" : ""
     })
 
     const isEntryChecked = computed(() => {
@@ -135,6 +135,7 @@ li {
     text-align: center;
     grid-area: checked;
     border: 1px solid black;
+    color: black; 
 }
 
 .payment {

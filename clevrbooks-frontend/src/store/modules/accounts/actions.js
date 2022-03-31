@@ -1,4 +1,4 @@
-const withQuery = require('with-query').default
+const axios = require('axios')
 
 export default {
 
@@ -6,26 +6,23 @@ export default {
         // console.log('getAllAccounts()')
         const url = context.rootGetters.apiUrl + 'accounts'
         const token = context.rootGetters.token
-
-        const response = await fetch(url, 
-            {
-                method: 'GET',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
+        try {
+            const response = await axios.get(url, 
+                {
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    }
                 }
-            }
-        )
-        const responseData = await response.json()
-        if (!response.ok) {
-            // console.log(response)
-            const error = new Error(responseData.message || 'Failed to authenticate')
+            )  
+            // save data in vuex store
+            //console.log(response.data)
+            context.commit('setAccounts', response.data)
+
+        } catch (error) {
+            console.log(error.message)
             throw error
         }
-
-        // save data in vuex store
-        //console.log(responseData)
-        context.commit('setAccounts', responseData)
     },
 
     async getAllCategories(context) {
@@ -33,57 +30,46 @@ export default {
         const url = context.rootGetters.apiUrl + 'categories'
         const token = context.rootGetters.token
 
-        const response = await fetch(url, 
-            {
-                method: 'GET',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                }
-            }
-        )
-        const responseData = await response.json()
-        if (!response.ok) {
-            // console.log(response)
-            const error = new Error(responseData.message || 'Failed to authenticate')
-            throw error
-        }
-
-        // save data in vuex store
-        // console.log(responseData)
-        context.commit('setCategories', responseData)
-    },
-
-    async getEntriesForAccount(context, params) {
-        // console.log(`getEntriesForAccount(id:${params.id},order:${params.order})`)
-
-        const query = withQuery(context.rootGetters.apiUrl + 'account/' + params.id, {
-          limit: params.limit,
-          order: params.order
-        })
-        // console.log('Query: ' + query)
-        
-        const token = context.rootGetters.token
-
         try {
-            const response = await fetch(query, 
+            const response = await axios.get(url, 
                 {
-                    method: 'GET',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + token
                     }
                 }
-            )
-            const responseData = await response.json()
-            if (!response.ok) {
-                const error = new Error(responseData.message || 'Access violation')
-                throw error
-            }
+            )   
             // save data in vuex store
-            context.commit('setEntries', { accountId: params.id, entries: responseData })
+            // console.log(response.data)
+            context.commit('setCategories', response.data)
         } catch (error) {
-            console.log(error)
+            console.log(error.message)
+            throw error
+        }
+    },
+
+    async getEntriesForAccount(context, params) {
+        // console.log(`getEntriesForAccount(id:${params.id},order:${params.order})`)
+        const url   = context.rootGetters.apiUrl + 'account/' + params.id
+        const token = context.rootGetters.token
+
+        try {
+            const response = await axios.get(url,
+                {
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    params: {
+                        limit: params.limit,
+                        order: params.order              
+                    }
+                }
+            )
+            // save data in vuex store
+            context.commit('setEntries', { accountId: params.id, entries: response.data })
+        } catch (error) {
+            console.log(error.message)
             throw error
         }
     },
@@ -94,29 +80,23 @@ export default {
 
     async addEntry(context, params) {
 
-        const query = withQuery(context.rootGetters.apiUrl + 'account/' + params.id)  
+        const url = context.rootGetters.apiUrl + 'account/' + params.id
         const token = context.rootGetters.token
   
         try {
-            const response = await fetch(query, 
+            // const response = await axios.post(url, params.payload,
+            await axios.post(url, params.payload,
                 {
-                    method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + token
                     }
                 }
             )
-            
-            const responseData = await response.json()
-            if (!response.ok) {
-                const error = new Error(responseData.message || 'Access violation')
-                throw error
-            }
             // save data in vuex store
             // context.commit('setEntries', { accountId: params.id, entries: responseData })
         } catch (error) {
-            console.log(error)
+            console.log(error.message)
             throw error
         }
     }

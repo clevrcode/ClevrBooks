@@ -1,12 +1,12 @@
 <template>
     <div>
-        <base-dialog :show="!!error" title="An error occured" @close="handleError">
-            <p>{{ error }}</p>
+        <base-dialog :show="!!errorMsg" title="An error occured" @close="handleError">
+            <p>{{ errorMsg }}</p>
         </base-dialog>
-        <base-dialog :show="isLoading" title="Authenticating..." fixed>
+        <base-dialog :show="isLoading" title="inserting..." fixed>
             <base-spinner></base-spinner>
         </base-dialog>
-        <base-card>
+        <base-card class="sliding-form">
             <form @submit.prevent="submitForm">
                 <div class="form-control">
                     <label for="date">Date</label>
@@ -22,28 +22,32 @@
                 </div>
                 <p v-if="!formIsValid">Please fix errors</p>
                 <base-button>Enter</base-button>
+                <base-button @click="canClose">Cancel</base-button>
             </form>
-        </base-card>        
+        </base-card>
     </div>
 </template>
 
 <script setup>
     import { ref, onMounted } from 'vue'
-    import { useRouter } from 'vue-router'
+    // import { useRouter } from 'vue-router'
     import { useStore } from 'vuex'
 
+    const props = defineProps(['accountId'])
+    const emit = defineEmits(['canClose'])
+
     const isLoading = ref(false)
-    const error = ref(null)
+    const errorMsg = ref(null)
     const transactionDate = ref('')
     const payee = ref('')
     const memo = ref('')
     const formIsValid = ref(true)
     const store = useStore()
-    const router = useRouter()
+    // const router = useRouter()
     // const route = useRoute()
 
     function handleError() {
-        error.value = null
+        errorMsg.value = null
     }
 
     async function submitForm() {
@@ -55,25 +59,26 @@
 
         // send http request to Firebase
         isLoading.value = true
-        const payload = {
+        const entry = {
             date: transactionDate.value,
             payee: payee.value,
             memo: memo.value
         }
+        const payload = {
+            id: props.accountId,
+            payload: entry
+        }
         try {
             await store.dispatch('accounts/addEntry', payload)
-            try {
-                await store.dispatch('accounts/getAllAccounts')
-                await store.dispatch('accounts/getAllCategories')
-            } catch (err) {
-                error.value = err.message || 'Failed to load accounts'
-            }
-            // const redirectUrl = '/' + (route.query.redirect || 'accounts')
-            router.replace("/")
+
         } catch (err) {
-            error.value = err.message || 'Authentication failed!'
+            errorMsg.value = err.message || 'Authentication failed!'
         }
         isLoading.value = false
+        emit('canClose')
+    }
+    function canClose() {
+        emit('canClose')
     }
 
     onMounted(() => {
@@ -82,6 +87,15 @@
 
 </script>
 
-<style>
+<style scoped>
+.sliding-form {
+    background: #ccc;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.form-control {
+    margin: 1rem;
+}
 
 </style>

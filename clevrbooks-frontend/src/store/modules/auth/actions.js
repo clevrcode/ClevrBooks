@@ -1,3 +1,4 @@
+const axios = require('axios')
 let timer
 
 export default {
@@ -20,40 +21,35 @@ export default {
         if (payload.mode === 'signup') {
             url = context.getters.signupUrl
         }
-        // console.log(payload.mode + ': ' + url)
-        const response = await fetch(url, 
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload.data)
-            }
-        )
-        const responseData = await response.json()
-        if (!response.ok) {
-            console.log(response)
-            const error = new Error(responseData.message || 'Failed to authenticate')
+        try {
+            const response = await axios.post(url, payload.data, 
+                { headers: { 'Content-Type': 'application/json' } })
+
+            if (payload.mode === 'login') {
+                const expiresIn = +response.data.expiresIn * 1000
+                const expirationDate = new Date().getTime() + expiresIn
+        
+                // save data in the browser
+                localStorage.setItem('token', response.data.token)
+                localStorage.setItem('userId', response.data.userId)
+                localStorage.setItem('tokenExpiration', expirationDate)
+                localStorage.setItem('lastUser', payload.data.email)
+                timer = setTimeout(function() {
+                    context.dispatch('autoLogout')
+                }, expiresIn)
+        
+                // save data in vuex store
+                context.commit('setUser', {
+                    token: response.data.token,
+                    userId: response.data.userId
+                })
+            }       
+        } catch (error) {
+            console.log('login error')
+            console.log(error)
             throw error
         }
-        if (payload.mode === 'login') {
-            const expiresIn = +responseData.expiresIn * 1000
-            const expirationDate = new Date().getTime() + expiresIn
-    
-            // save data in the browser
-            localStorage.setItem('token', responseData.token)
-            localStorage.setItem('userId', responseData.userId)
-            localStorage.setItem('tokenExpiration', expirationDate)
-            localStorage.setItem('lastUser', payload.data.email)
-            timer = setTimeout(function() {
-                context.dispatch('autoLogout')
-            }, expiresIn)
-    
-            // save data in vuex store
-            // console.log(responseData)
-            context.commit('setUser', {
-                token: responseData.token,
-                userId: responseData.userId
-            })    
-        }   
+ 
     },
     autoLogin(context) {
         const token = localStorage.getItem('token')

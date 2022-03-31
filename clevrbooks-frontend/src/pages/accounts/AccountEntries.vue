@@ -4,6 +4,9 @@
       <p>{{ errorMsg }}</p>
     </base-dialog>
     <section>
+        <transition name="form">
+          <entry-form class="entry-form" v-if="showForm" @can-close="canClose"></entry-form>
+        </transition>
         <div class="spinner" v-if="isLoading">
           <base-spinner></base-spinner>
         </div>
@@ -46,6 +49,7 @@
   import { useRoute } from 'vue-router'
 
   import EntryItem from '../../components/accounts/EntryItem.vue'
+  import EntryForm from '../../components/accounts/AddEntryForm.vue'
 
   const props = defineProps(['id'])
   const store = useStore()
@@ -57,6 +61,8 @@
   const selected = ref('')
   const startDate = ref(null)
   const endDate = ref(null)
+  const showForm = ref(false)
+
   const options = ref([
       { value: ""           , text: "--All Dates--"  },
       { value: "thismonth"  , text: "This Month"     },
@@ -209,7 +215,11 @@
   
   function addEntry() {
     console.log("addEntry()")
-    
+    showForm.value = true
+  }
+  function canClose() {
+    console.log("canClose()")
+    showForm.value = false
   }
 
   function getCategory(entry) {
@@ -342,6 +352,28 @@ ul {
 }
 #search:placeholder-shown + svg {
   visibility: visible;
+}
+
+.entry-form {
+    position: absolute;
+    top: 20%;
+    right: 0%;
+    width: 30%;
+    z-index: 1;
+}
+
+.form-enter-from,
+.form-leave-to {
+  transform: translateX(100%);
+}
+
+.form-enter-active,
+.form-leave-active {
+  transition: transform 0.5s
+}
+
+.form-enter-to {
+  transform: translateX(0%);
 }
 
 </style>

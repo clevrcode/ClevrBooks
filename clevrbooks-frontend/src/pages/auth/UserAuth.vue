@@ -1,7 +1,7 @@
 <template>
     <div>
-        <base-dialog :show="!!error" title="An error occured" @close="handleError">
-        <p>{{ error }}</p>
+        <base-dialog :show="!!errorMsg" title="An error occured" @close="handleError">
+        <p>{{ errorMsg }}</p>
         </base-dialog>
         <base-dialog :show="isLoading" title="Authenticating..." fixed>
         <base-spinner></base-spinner>
@@ -38,7 +38,7 @@
     import { useStore } from 'vuex'
 
     const isLoading = ref(false)
-    const error = ref(null)
+    const errorMsg = ref(null)
     const firstName = ref('')
     const lastName = ref('')
     const email = ref('')
@@ -69,7 +69,7 @@
     })
 
     function handleError() {
-        error.value = null
+        errorMsg.value = null
     }
 
     async function submitForm() {
@@ -97,12 +97,24 @@
                 await store.dispatch('accounts/getAllAccounts')
                 await store.dispatch('accounts/getAllCategories')
             } catch (err) {
-                error.value = err.message || 'Failed to load accounts'
+                errorMsg.value = err.message || 'Failed to load accounts'
             }
             // const redirectUrl = '/' + (route.query.redirect || 'accounts')
             router.replace("/")
-        } catch (err) {
-            error.value = err.message || 'Authentication failed!'
+        } catch (error) {
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                errorMsg.value = error.response.data.error + ` (${error.response.status})`
+            } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                errorMsg.value = `Request error ${error.request}`
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                errorMsg.value = error.message || 'Authentication failed!'
+            }
         }
         isLoading.value = false
     }
