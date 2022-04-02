@@ -22,6 +22,24 @@ export default {
         return state.subcategories[id]
     },
 
+    getCategoryList(state) {
+        const catList = []
+        state.categories.forEach((cat) => {
+            catList.push(cat.name)
+            const subcat = state.subcategories.filter(sc => sc.category === cat.id)
+            subcat.forEach(sc => catList.push(`${cat.name}:${sc.name}`))
+        })
+        return catList
+    },
+    
+    getCategoryName: (state) => (category, subcategory) => {
+        // console.log(`${category},${subcategory}`)
+        if (subcategory) {
+            return `${state.categories[category].name}:${state.subcategories[subcategory].name}`
+        }
+        return state.categories[category].name
+    },
+
     entries(state) {
         return state.entries
     },
@@ -37,5 +55,21 @@ export default {
             return account ? account.name : 'Unknown'
         }
         return ''
+    },
+
+    getUniquePayeeList(state) {
+        let result = []
+        if (state.entries.length > 0) {
+            let names = []
+            state.entries.forEach(x => names.push(x.payee))
+            result = names.filter((v, i, a) => a.indexOf(v) === i)
+            // console.log(result)
+        }
+        return result
+    },
+
+    getLastEntryForPayee: (state) => (payee) => {
+        const lastIndex = state.entries.map(entry => entry.payee === payee).lastIndexOf(true);
+        return state.entries[lastIndex]
     }
 }

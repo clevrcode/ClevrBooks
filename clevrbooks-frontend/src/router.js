@@ -22,13 +22,12 @@ const router = createRouter({
 
 router.beforeEach(function(to, _, next) {
     if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
-        console.log('goto auth:' + to.path)
         next('/')
     } else if (to.meta.requiresUnauth && store.getters.isAuthenticated) {
-        console.log('goto home')
         next('/')
     } else {
         next()
     }
 })
+
 export default router

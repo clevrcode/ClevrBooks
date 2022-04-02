@@ -31,7 +31,7 @@ module.exports = {
             if (!categories) {
                 res.send({ message: 'No categories found' })
             } else {
-                // console.log(categories)
+                console.log(categories)
                 result.categories = categories
                 const subcategories = await Subcategory.findAll()
                 if (subcategories) {
@@ -84,7 +84,8 @@ module.exports = {
     },
 
     async insertEntry (req, res) {
-
+        console.log('insertEntry()')
+        res.send('New entry added')
     },
 
     async updateEntry (req, res) {

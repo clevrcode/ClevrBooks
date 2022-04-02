@@ -33,7 +33,8 @@
     })
 
     const getChecked = computed(() => {
-        return props.entry.cleared ? "done" : ""
+        // display a checkmark or a black dot
+        return props.entry.cleared ? "check" : "noise_control_off"
     })
 
     const isEntryChecked = computed(() => {

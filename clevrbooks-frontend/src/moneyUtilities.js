@@ -6,12 +6,17 @@ export default function useMoneyUtilities() {
         }
         return val.toLocaleString(undefined, {minimumFractionDigits: 2})
     }
+
     function isNegative(val) {
         return val <= -0.01
     }
 
+    function validateStringAmount(str) {
+        return str.search(/^\$?[\d]*(\.\d{0,2})?$/) >= 0
+    }
+
     return {
-        getMoneyString, isNegative
+        getMoneyString, isNegative, validateStringAmount
     }
 }
 

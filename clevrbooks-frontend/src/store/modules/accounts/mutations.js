@@ -8,13 +8,11 @@ export default {
     },
     setCategories(state, payload) {
         for (const cat of payload.categories) {
-            state.categories[cat.id] = { name: cat.name, type: cat.type }
+            state.categories[cat.id] = { id: cat.id, name: cat.name, type: cat.type }
         }
-        // console.log(state.categories)
         for (const subcat of payload.subcategories) {
-            state.subcategories[subcat.id] = { name: subcat.name, category: subcat.category }
+            state.subcategories[subcat.id] = { id: subcat.id, name: subcat.name, category: subcat.category }
         }
-        // console.log(state.subcategories)
     },
     clearAccounts(state) {
         state.accounts = []

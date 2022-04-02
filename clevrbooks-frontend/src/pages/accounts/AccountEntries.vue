@@ -5,7 +5,7 @@
     </base-dialog>
     <section>
         <transition name="form">
-          <entry-form class="entry-form" v-if="showForm" @can-close="canClose"></entry-form>
+          <entry-form class="entry-form" v-if="showForm" @cancel="canClose" @submit="addEntry" :accountId="+props.id"></entry-form>
         </transition>
         <div class="spinner" v-if="isLoading">
           <base-spinner></base-spinner>
@@ -140,15 +140,14 @@
         { start: "10-01", end: "12-31"}
     ]
 
-    console.log(newValue)
     if (newValue.length > 0) {
       const date = new Date()
-      console.log(date.toLocaleString().substring(0,10))
+      // console.log(date.toLocaleString().substring(0,10))
       if (newValue === "thismonth") {
         const sDate = new Date(date.getFullYear(), date.getMonth(), 1)
         startDate.value = sDate.toLocaleString().substring(0,10)
         endDate.value = null
-        console.log(`startDate: ${startDate.value}`)
+        // console.log(`startDate: ${startDate.value}`)
       } else if (newValue === "lastmonth") {
         const month = (((date.getMonth() - 1) + 11) % 12) + 1
         const year = month === 12 ? date.getFullYear() - 1 : date.getFullYear()
@@ -156,65 +155,63 @@
         startDate.value = sDate.toLocaleString().substring(0,10)
         const eDate = new Date(date.setDate(0))
         endDate.value = eDate.toLocaleString().substring(0,10)
-        console.log(`start Date: ${startDate.value}`)
-        console.log(`end Date  : ${endDate.value}`)
+        // console.log(`start Date: ${startDate.value}`)
+        // console.log(`end Date  : ${endDate.value}`)
       } else if (newValue === "30days") {
         const sDate = new Date(new Date().setDate(date.getDate() - 30));
         startDate.value = sDate.toLocaleString().substring(0,10)
         endDate.value = null
-        console.log(`start Date: ${startDate.value}`)
+        // console.log(`start Date: ${startDate.value}`)
       } else if (newValue === "60days") {
         const sDate = new Date(new Date().setDate(date.getDate() - 60));
         startDate.value = sDate.toLocaleString().substring(0,10)
         endDate.value = null
-        console.log(`start Date: ${startDate.value}`)
+        // console.log(`start Date: ${startDate.value}`)
       } else if (newValue === "90days") {
         const sDate = new Date(new Date().setDate(date.getDate() - 90));
         startDate.value = sDate.toLocaleString().substring(0,10)
         endDate.value = null
-        console.log(`start Date: ${startDate.value}`)
+        // console.log(`start Date: ${startDate.value}`)
       } else if (newValue === "12month") {
         const sDate = new Date(date.getFullYear()-1, date.getMonth(), date.getDate());
         startDate.value = sDate.toLocaleString().substring(0,10)
         endDate.value = null
-        console.log(`start Date: ${startDate.value}`)
+        // console.log(`start Date: ${startDate.value}`)
       } else if (newValue === "thisquarter") {
         const idx = Math.floor(date.getMonth() / 3)
-        console.log(idx)
         startDate.value = `${date.getFullYear()}-${Quarters[idx].start}`
         endDate.value = `${date.getFullYear()}-${Quarters[idx].end}`
-        console.log(`start Date: ${startDate.value}`)
-        console.log(`end Date  : ${endDate.value}`)
+        // console.log(`start Date: ${startDate.value}`)
+        // console.log(`end Date  : ${endDate.value}`)
       } else if (newValue === "lastquarter") {
         let idx = Math.floor(date.getMonth() / 3)
         const idx2 = (idx + 3) % 4
         const year = idx2 > idx ? date.getFullYear() - 1 : date.getFullYear()
-        console.log(idx2)
         startDate.value = `${year}-${Quarters[idx2].start}`
         endDate.value = `${year}-${Quarters[idx2].end}`
-        console.log(`start Date: ${startDate.value}`)
-        console.log(`end Date  : ${endDate.value}`)
+        // console.log(`start Date: ${startDate.value}`)
+        // console.log(`end Date  : ${endDate.value}`)
       } else if (newValue === "thisyear") {
         const sDate = new Date(date.getFullYear(), 0, 1);
         startDate.value = sDate.toLocaleString().substring(0,10)
         endDate.value = null
-        console.log(`start Date: ${startDate.value}`)
+        // console.log(`start Date: ${startDate.value}`)
       } else if (newValue === "lastyear") {
         const sDate = new Date(date.getFullYear()-1, 0, 1);
         startDate.value = sDate.toLocaleString().substring(0,10)
         endDate.value = new Date(new Date(date.getFullYear(), 0, 1).setDate(0)).toLocaleString().substring(0,10);
-        console.log(`start Date: ${startDate.value}`)
-        console.log(`end Date  : ${endDate.value}`)
+        // console.log(`start Date: ${startDate.value}`)
+        // console.log(`end Date  : ${endDate.value}`)
       }
     } else {
-      console.log("no filter")
+      // console.log("no filter")
       startDate.value = null
       endDate.value = null
     }
   })
   
   function addEntry() {
-    console.log("addEntry()")
+    // console.log("addEntry()")
     showForm.value = true
   }
   function canClose() {
@@ -225,18 +222,19 @@
   function getCategory(entry) {
     let category = ''
     if (entry.xferToAccount) {
-        const account = store.getters['accounts/getAccountById'](entry.category).name
-        category = '[' + account + ']'
+        category = store.getters['accounts/getAccountById'](entry.category).name
     } else {
-        category = store.getters['accounts/getCategoryById'](entry.category).name
-        if (entry.subcategory) {
-            const subcategory = store.getters['accounts/getSubcategoryById'](entry.subcategory)
-            if (subcategory.category === entry.category) {
-                category += ':' + subcategory.name
-            } else {
-                console.log(`Category mismatch ${category}(${entry.category}):${subcategory.name}(${entry.subcategory})`)
-            }
-        }
+        category = store.getters['accounts/getCategoryName'](entry.category, entry.subcategory)
+        // console.log(store.getters['accounts/getCategoryName'](entry.category, entry.subcategory))
+        // category = store.getters['accounts/getCategoryById'](entry.category).name
+        // if (entry.subcategory) {
+        //     const subcategory = store.getters['accounts/getSubcategoryById'](entry.subcategory)
+        //     if (subcategory.category === entry.category) {
+        //         category += ':' + subcategory.name
+        //     } else {
+        //         console.log(`Category mismatch ${category}(${entry.category}):${subcategory.name}(${entry.subcategory})`)
+        //     }
+        // }
     }
     return category
   }
@@ -347,12 +345,12 @@ ul {
   width: 10rem;
 }
 
-#search + svg {
+/* #search + svg {
   visibility: hidden;
 }
 #search:placeholder-shown + svg {
   visibility: visible;
-}
+} */
 
 .entry-form {
     position: absolute;
