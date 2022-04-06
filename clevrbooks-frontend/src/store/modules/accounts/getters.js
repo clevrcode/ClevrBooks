@@ -45,7 +45,8 @@ export default {
 
   getCategoryList(state) {
     const catList = []
-    console.log(state.categories)
+    // console.log(typeof state.categories)
+    // console.log(state.categories)
     state?.categories?.forEach((cat) => {
       catList.push(cat.name)
       const subcat = state?.subcategories?.filter(

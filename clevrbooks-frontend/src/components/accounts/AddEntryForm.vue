@@ -45,14 +45,7 @@
               :initext="props.payee"
             ></search-auto-complete>
           </div>
-          <div class="form-control" v-if="isBankingAccount">
-            <label for="check-number">Check Number</label>
-            <input
-              type="text"
-              id="check-number"
-              v-model="checkNumberInput"
-              data-lpignore="true"
-            />
+          <div class="form-control banking-account" v-if="isBankingAccount">
             <label for="transaction-type">Type</label>
             <select
               name="transaction-type"
@@ -67,6 +60,13 @@
                 {{ option.name }}
               </option>
             </select>
+            <label for="check-number">Check #</label>
+            <input
+              type="text"
+              id="check-number"
+              v-model="checkNumberInput"
+              data-lpignore="true"
+            />
           </div>
           <div class="amount">
             <div
@@ -430,11 +430,8 @@ function canClose() {
 
 onMounted(() => {
   // console.log('AddEntryForm: mounted')
-  console.log(
-    `payee: ${props.payee}, accountId: ${props.accountId}, date: ${props.date}, amount: ${props.amount}`,
-  )
-  // FIXME: Doesn't work for value 0.00
-  if (props.amount) {
+  // FIXME: should we check for undefined?
+  if (props.amount !== null) {
     if (props.amount < 0) {
       chargeInput.value = getMoneyString(-props.amount)
       paymentInput.value = ''
@@ -501,5 +498,12 @@ input[type='text'] {
 .form-frame {
   border: 2px solid #999;
   border-radius: 5px;
+}
+.banking-account {
+  display: flex;
+  justify-content: space-evenly;
+}
+.banking-account input {
+  width: 100px;
 }
 </style>

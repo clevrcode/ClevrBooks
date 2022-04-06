@@ -1,6 +1,18 @@
 const { Account, Category, Subcategory, Entry } = require('../models')
 const { Op } = require('sequelize')
 
+async function getLastCheckNumber(accountId) {
+  const lastCheck = await Entry.findAll({
+    where: { checkNumber: { [Op.not]: null }, accountId: accountId },
+    order: [['checkNumber', 'DESC']],
+    limit: 1,
+  })
+  if (lastCheck) {
+    return lastCheck[0].dataValues.checkNumber
+  }
+  return null
+}
+
 module.exports = {
   async getAllAccounts(req, res) {
     try {
@@ -69,15 +81,10 @@ module.exports = {
       console.log(`Account type: ${req.account.type}`)
       if (req.account.type === 'Banking') {
         console.log('Check for last check number used...')
-        const lastCheck = await Entry.findAll({
-          where: { checkNumber: { [Op.not]: null } },
-          order: [['checkNumber', 'DESC']],
-          limit: 1,
-        })
+        const lastCheck = await getLastCheckNumber(req.account.id)
         if (lastCheck) {
-          console.log(lastCheck[0].dataValues.checkNumber)
-          console.log(`last check used: ${lastCheck[0].dataValues.checkNumber}`)
-          nextCheck = lastCheck[0].dataValues.checkNumber + 1
+          console.log(`last check used: ${lastCheck}`)
+          nextCheck = lastCheck + 1
         } else {
           console.log('No check used')
         }
@@ -94,6 +101,7 @@ module.exports = {
         res.send(response)
       }
     } catch (error) {
+      console.log(`exception: ${error}`)
       res.status(500).send({
         error: error,
       })

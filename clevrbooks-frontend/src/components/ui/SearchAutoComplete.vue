@@ -97,6 +97,10 @@ function setResult(result) {
 </script>
 
 <style scoped>
+input[type='text'] {
+  width: 100%;
+}
+
 .autocomplete {
   position: relative;
 }

@@ -8,15 +8,19 @@ export default {
     state.nextCheckNumber = payload.nextCheck
   },
   setCategories(state, payload) {
+    state.categories = new Array()
+    state.subcategories = new Array()
     for (const cat of payload.categories) {
-      state.categories[cat.id] = { id: cat.id, name: cat.name, type: cat.type }
+      //   state.categories[cat.id] = { id: cat.id, name: cat.name, type: cat.type }
+      state.categories[cat.id] = cat
     }
     for (const subcat of payload.subcategories) {
-      state.subcategories[subcat.id] = {
-        id: subcat.id,
-        name: subcat.name,
-        category: subcat.category,
-      }
+      state.subcategories[subcat.id] = subcat
+      //   state.subcategories[subcat.id] = {
+      //     id: subcat.id,
+      //     name: subcat.name,
+      //     category: subcat.category,
+      //   }
     }
   },
   clearAccounts(state) {

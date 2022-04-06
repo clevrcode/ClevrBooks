@@ -26,6 +26,7 @@
           @cancel="canClose"
           @submit="updateEntry"
           :banking="isBankingAccount"
+          :checkNumber="editFormData.checkNumber"
           :accountId="editFormData.accountId"
           :date="editFormData.date"
           :payee="editFormData.payee"
@@ -439,7 +440,7 @@ ul {
   position: absolute;
   top: 20%;
   right: 0%;
-  width: 30%;
+  width: 40%;
   z-index: 1;
 }
 
