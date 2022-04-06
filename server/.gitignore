@@ -3,6 +3,7 @@ node_modules
 src/public/dist
 *.sqlite
 *.sqlite3
+*.sqbpro
 *sqlite3-journal
 .env
 test.*
