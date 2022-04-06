@@ -26,6 +26,7 @@
     // const route = useRoute()
     // const store = useStore()
 
+    const emit = defineEmits(['edit', 'delete'])
     const props = defineProps(['entry', 'balance'])
 
     const getCharge = computed(() => {
@@ -76,11 +77,13 @@
     // })
 
     function editEntry() {
-        console.log("editEntry " + props.entry.payee)
+        console.log("editEntry " + props.entry)
+        emit('edit', props.entry)
     }
 
     function deleteEntry() {
-        console.log("deleteEntry")
+        console.log("deleteEntry " + props.entry.payee)
+        emit('delete', props.entry)
     }
 
 
