@@ -5,7 +5,6 @@
       v-model="search"
       data-lpignore="true"
       @input="onChange"
-      @keydown.tab="onEnter"
       @keydown.down="onArrowDown"
       @keydown.up="onArrowUp"
       @keydown.enter="onEnter"
@@ -28,7 +27,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const emit = defineEmits(['enter'])
+const emit = defineEmits(['enter', 'val-change'])
 const props = defineProps({
   items: {
     type: Array,
@@ -56,6 +55,7 @@ function filterResults() {
 function onChange() {
   filterResults()
   isOpen.value = results.value.length > 0
+  emit('val-change', search.value)
 }
 
 function onArrowDown() {

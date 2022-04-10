@@ -7,6 +7,12 @@ export default {
     state.entries = payload.entries
     state.nextCheckNumber = payload.nextCheck
   },
+  appendEntry(state, payload) {
+    state.entries.push(payload)
+    if (payload.checkNumber) {
+      state.nextCheckNumber = payload.checkNumber + 1
+    }
+  },
   setCategories(state, payload) {
     state.categories = new Array()
     state.subcategories = new Array()

@@ -42,6 +42,7 @@
             <search-auto-complete
               :items="getPayeeList"
               @enter="onPayeeEnter"
+              @val-change="onPayeeChange"
               :initext="props.payee"
             ></search-auto-complete>
           </div>
@@ -64,7 +65,7 @@
             <input
               type="text"
               id="check-number"
-              v-model="checkNumberInput"
+              v-model.number="checkNumberInput"
               data-lpignore="true"
             />
           </div>
@@ -74,24 +75,14 @@
               :class="{ 'form-invalid': fieldInvalid.charge }"
             >
               <label for="charge">Charge:</label>
-              <input
-                type="text"
-                id="charge"
-                v-model.trim="chargeInput"
-                data-lpignore="true"
-              />
+              <input type="text" id="charge" data-lpignore="true" />
             </div>
             <div
               class="form-control"
               :class="{ 'form-invalid': fieldInvalid.payment }"
             >
               <label for="payment">Payment:</label>
-              <input
-                type="text"
-                id="payment"
-                v-model.trim="paymentInput"
-                data-lpignore="true"
-              />
+              <input type="text" id="payment" data-lpignore="true" />
             </div>
           </div>
           <div class="form-control">
@@ -149,7 +140,9 @@
           </div>
           <base-button>Enter</base-button>
         </form>
-        <base-button @click="addEntry(false)">Enter+</base-button>
+        <base-button @click="addEntry(false)" v-if="isEditMode">
+          Enter+
+        </base-button>
         <base-button @click="canClose">Cancel</base-button>
       </div>
     </base-card>
@@ -161,8 +154,9 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 // import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import useMoneyUtilities from '../../moneyUtilities'
+import AutoNumeric from 'autonumeric'
 
-const { getMoneyString, isNegative, validateStringAmount } = useMoneyUtilities()
+const { isNegative } = useMoneyUtilities()
 
 const props = defineProps({
   banking: {
@@ -173,6 +167,12 @@ const props = defineProps({
   accountId: {
     type: Number,
     required: true,
+  },
+  // If id not null, then the form is set for editing
+  id: {
+    type: Number,
+    required: false,
+    default: null,
   },
   checkNumber: {
     type: Number,
@@ -220,8 +220,6 @@ const payeeInput = ref(props.payee)
 const memoInput = ref(props.memo)
 const categorySelected = ref('')
 const accountSelected = ref('')
-const chargeInput = ref('')
-const paymentInput = ref('')
 const formErrorMsg = ref([])
 const formIsValid = ref(true)
 const xferToAccount = ref(props.xferToAccount)
@@ -236,6 +234,8 @@ const fieldInvalid = reactive({
 })
 // const router = useRouter()
 // const route = useRoute()
+// let chargeAutoNumeric = null
+// let paymentAutoNumeric = null
 
 const categoryList = computed(() => {
   return store.getters['accounts/getCategoryList']
@@ -257,6 +257,10 @@ const isBankingAccount = computed(() => {
   return props.banking
 })
 
+const isEditMode = computed(() => {
+  return !(props.id && typeof props.id !== 'undefined')
+})
+
 const transactionTypeList = [
   { id: 1, name: 'Next Check' },
   { id: 1, name: 'ATM' },
@@ -266,8 +270,14 @@ const transactionTypeList = [
 watch(typeInput, (newValue) => {
   if (newValue === 'Next Check') {
     checkNumberInput.value = store.getters['accounts/getNextCheckNumber']
+    typeInput.value = null
   }
 })
+
+function onPayeeChange(param) {
+  payeeInput.value = param
+  // console.log(`payee: ${payeeInput.value}`)
+}
 
 function onPayeeEnter(param) {
   console.log(`onPayeeEnter(${param})`)
@@ -284,11 +294,9 @@ function onPayeeEnter(param) {
       categorySelected.value = entry.category
     }
     if (isNegative(entry.amount)) {
-      chargeInput.value = getMoneyString(-entry.amount)
-      paymentInput.value = ''
+      AutoNumeric.set('#charge', -entry.amount)
     } else {
-      paymentInput.value = getMoneyString(entry.amount)
-      chargeInput.value = ''
+      AutoNumeric.set('#payment', entry.amount)
     }
   }
 }
@@ -314,26 +322,42 @@ function buildRequest() {
       .id
   } else {
     const catnames = categorySelected.value.split(':')
-    console.log(catnames)
+    // console.log(catnames)
     category = store.getters['accounts/getCategoryByName'](catnames[0]).id
-    console.log(`category: ${category}`)
+    // console.log(`category: ${category}`)
     if (catnames.length > 1) {
       subcategory = store.getters['accounts/getSubcategoryByName'](catnames[1])
         .id
     }
   }
+
+  const charge = -AutoNumeric.getNumber('#charge')
+  const payment = AutoNumeric.getNumber('#payment')
+  let amount = 0
+  // console.log(`charge : ${charge}`)
+  // console.log(`payment: ${payment}`)
+  if (payment !== 0) {
+    amount = payment
+  } else if (charge !== 0) {
+    amount = charge
+  }
+  if (checkNumberInput.value && typeInput.value && typeInput.value.length > 0) {
+    typeInput.value = null
+  }
+
   const request = {
+    id: props.id,
     date: transactionDate.value,
     payee: payeeInput.value,
+    checkNumber: checkNumberInput.value,
+    type: typeInput.value,
     memo: memoInput.value,
     xferToAccount: xferToAccount.value,
     category: category,
     subcategory: subcategory,
     cleared: false,
-    amount:
-      chargeInput.value.length > 0
-        ? -parseFloat(chargeInput.value)
-        : parseFloat(paymentInput.value),
+    amount: amount,
+    accountId: props.accountId,
   }
   return request
 }
@@ -354,7 +378,7 @@ function setFormErrorMsg(msg) {
 }
 
 function validateForm() {
-  console.log('validateForm()')
+  //   console.log('validateForm()')
   formIsValid.value = true
 
   formErrorMsg.value = []
@@ -369,31 +393,33 @@ function validateForm() {
   if (!transactionDate.value.match(/\d\d\d\d-[0-1]\d-[0-3]\d/)) {
     fieldInvalid.payee = setFormErrorMsg('Invalid Date format')
   }
-  if (chargeInput.value === '' && paymentInput.value === '') {
+
+  const charge = -AutoNumeric.getNumber('#charge')
+  const payment = AutoNumeric.getNumber('#payment')
+
+  if (charge === 0 && payment === 0) {
     fieldInvalid.charge = fieldInvalid.payment = setFormErrorMsg(
       'charge AND payment fields are empty',
     )
   }
-  if (chargeInput.value.length > 0 && paymentInput.value.length > 0) {
+  if (charge !== 0 && payment !== 0) {
     fieldInvalid.charge = fieldInvalid.payment = setFormErrorMsg(
       'charge AND payment fields are present',
     )
   }
-  if (
-    chargeInput.value.length > 0 &&
-    !validateStringAmount(chargeInput.value)
-  ) {
-    fieldInvalid.charge = setFormErrorMsg('charge field has invalid format')
-  }
-  if (
-    paymentInput.value.length > 0 &&
-    !validateStringAmount(paymentInput.value)
-  ) {
-    fieldInvalid.payment = setFormErrorMsg('payment field has invalid format')
-  }
   if (xferToAccount.value) {
     if (accountSelected.value === '') {
       fieldInvalid.account = setFormErrorMsg('Account not set')
+    }
+    if (accountSelected.value.length > 0) {
+      const accId = store.getters['accounts/getAccountByName'](
+        accountSelected.value,
+      ).id
+      if (accId === props.accountId) {
+        fieldInvalid.account = setFormErrorMsg(
+          'Selected account same as origin account',
+        )
+      }
     }
   } else {
     if (categorySelected.value === '') {
@@ -404,7 +430,7 @@ function validateForm() {
 }
 
 async function submitForm() {
-  console.log('submit form...')
+  // console.log('submit form...')
   if (!validateForm()) {
     return
   }
@@ -414,12 +440,13 @@ async function submitForm() {
   const entry = buildRequest()
   const payload = {
     id: props.accountId,
+    edit: props.id != null,
     payload: entry,
   }
   try {
     await store.dispatch('accounts/addEntry', payload)
   } catch (err) {
-    errorMsg.value = err.message || 'Authentication failed!'
+    errorMsg.value = err.message || 'Submit failed!'
   }
   isLoading.value = false
 }
@@ -431,13 +458,20 @@ function canClose() {
 onMounted(() => {
   // console.log('AddEntryForm: mounted')
   // FIXME: should we check for undefined?
+  new AutoNumeric('#charge', { currencySymbol: '$' })
+  new AutoNumeric('#payment', { currencySymbol: '$' })
+  console.log(`props.id: ${props.id}`)
   if (props.amount !== null) {
     if (props.amount < 0) {
-      chargeInput.value = getMoneyString(-props.amount)
-      paymentInput.value = ''
+      console.log(`set charge to: ${-props.amount}`)
+      AutoNumeric.set('#charge', -props.amount)
+      // chargeInput.value = getMoneyString(-props.amount)
+      // paymentInput.value = ''
     } else {
-      chargeInput.value = ''
-      paymentInput.value = getMoneyString(props.amount)
+      console.log(`set payment to: ${props.amount}`)
+      AutoNumeric.set('#payment', props.amount)
+      // chargeInput.value = ''
+      // paymentInput.value = getMoneyString(props.amount)
     }
   }
   if (props.xferToAccount) {

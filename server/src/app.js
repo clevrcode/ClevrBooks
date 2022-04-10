@@ -1,8 +1,8 @@
 // Set environment variables
 const result = require('dotenv').config()
 if (result.error) {
-    console.log("Error: Failed to load environment variables...")
-    process.exit()
+  console.log('Error: Failed to load environment variables...')
+  process.exit()
 }
 
 const express = require('express')
@@ -10,7 +10,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 const api = require('./api')
 
-const models = require('./models');
+const models = require('./models')
 
 // Create the express app object
 const app = express()
@@ -29,10 +29,10 @@ app.use('/api', api)
 
 // Create the database and start the server
 const auth = require('./controllers/AuthenticationController')
-if (auth.authenticate()) {
-    const port = process.env.PORT || 8088
-    app.listen(port, () => {
-        console.log(`Express server started on ${port}`)
-    })
+const authenticated = auth.authenticate()
+if (authenticated) {
+  const port = process.env.PORT || 8088
+  app.listen(port, () => {
+    console.log(`Express server started on ${port}`)
+  })
 }
-

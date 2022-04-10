@@ -25,8 +25,11 @@
           v-if="showEditForm"
           @cancel="canClose"
           @submit="updateEntry"
+          :editForm="isEditForm"
           :banking="isBankingAccount"
+          :id="editFormData.id"
           :checkNumber="editFormData.checkNumber"
+          :type="editFormData.type"
           :accountId="editFormData.accountId"
           :date="editFormData.date"
           :payee="editFormData.payee"
@@ -167,9 +170,12 @@ const currentAccountName = computed(() => {
   return store.getters['accounts/getCurrentAccountName']
 })
 
+const isEditForm = computed(() => {
+  return true
+})
 const isBankingAccount = computed(() => {
   const type = store.getters['accounts/getCurrentAccountType']
-  console.log(`isBankingAccount(${type})`)
+  // console.log(`isBankingAccount(${type})`)
   return type === 'Banking'
 })
 
@@ -288,7 +294,7 @@ function editEntry(entry) {
 }
 
 function canClose() {
-  console.log('canClose()')
+  // console.log('canClose()')
   showForm.value = false
   showEditForm.value = false
 }

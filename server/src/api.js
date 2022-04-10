@@ -10,32 +10,22 @@ const validateAccount = require('./middleware/validate-account')
 router.use(logTime)
 
 // Routes
-router.post('/register', 
-    AuthenticationController.register
-)
+router.post('/register', AuthenticationController.register)
 
-router.post('/login',
-    AuthenticationController.login
-)
+router.post('/login', AuthenticationController.login)
 
 router.get('/status', (req, res) => {
-    res.send({
-        message: 'Current status ...'
-    })
+  res.send({
+    message: 'Current status ...',
+  })
 })
 
-router.get('/accounts', 
-    checkAuth,    
-    AccountController.getAllAccounts
-)
+router.get('/accounts', checkAuth, AccountController.getAllAccounts)
 
-router.get('/categories', 
-    checkAuth,    
-    AccountController.getAllCategories
-)
+router.get('/categories', checkAuth, AccountController.getAllCategories)
 
 // router.param('accountId', async function (req, res, next, id, name) {
-//     // Account validated    
+//     // Account validated
 //     req.account = {
 //         id: id
 //     }
@@ -43,23 +33,10 @@ router.get('/categories',
 //     next()
 // })
 
-
-router.route('/account/:accountId')
-    .get(
-        checkAuth,
-        validateAccount,
-        AccountController.getAccountEntries
-    )
-    .post(
-        checkAuth,
-        validateAccount,
-        AccountController.insertEntry
-    )
-    // .put(
-    //     checkAuth,
-    //     AccountController.updateEntry
-    // )
-
-
+router
+  .route('/account/:accountId')
+  .get(checkAuth, validateAccount, AccountController.getAccountEntries)
+  .post(checkAuth, validateAccount, AccountController.insertEntry)
+  .put(checkAuth, AccountController.updateEntry)
 
 module.exports = router

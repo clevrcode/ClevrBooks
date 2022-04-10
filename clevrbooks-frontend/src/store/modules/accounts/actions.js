@@ -77,17 +77,18 @@ export default {
   async addEntry(context, params) {
     const url = context.rootGetters.apiUrl + 'account/' + params.id
     const token = context.rootGetters.token
-
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token,
+    }
     try {
-      // const response = await axios.post(url, params.payload,
-      await axios.post(url, params.payload, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + token,
-        },
-      })
-      // save data in vuex store
-      // context.commit('setEntries', { accountId: params.id, entries: responseData })
+      if (params.edit) {
+        await axios.put(url, params.payload, { headers })
+      } else {
+        await axios.post(url, params.payload, { headers })
+        // save data in vuex store
+        context.commit('appendEntry', params.payload)
+      }
     } catch (error) {
       console.log(error.message)
       throw error
