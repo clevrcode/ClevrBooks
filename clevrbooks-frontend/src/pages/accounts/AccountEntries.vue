@@ -13,7 +13,7 @@
           class="entry-form"
           v-if="showForm"
           @cancel="canClose"
-          @submit="addEntry"
+          @submit="insertEntry"
           :banking="isBankingAccount"
           :accountId="+props.id"
         ></entry-form>
@@ -36,7 +36,7 @@
           :amount="editFormData.amount"
           :memo="editFormData.memo"
           :category="editFormData.category"
-          :xferToAccount="editFormData.xferToAccount"
+          :xferToAccount="editFormData.xferToAccount === 1"
         ></entry-form>
       </transition>
       <div class="spinner" v-if="isLoading">
@@ -76,9 +76,11 @@
           <entry-item
             v-for="entry in entries"
             :key="entry.data.id"
+            v-memo="[entry.id === entryUpdated]"
             :entry="entry.data"
             :balance="entry.balance"
             @edit="editEntry"
+            @delete="deleteEntry"
           ></entry-item>
         </ul>
       </div>
@@ -112,6 +114,7 @@ const showEditForm = ref(false)
 const mainWnd = ref(null)
 const ledgerWnd = ref(null)
 const editFormData = ref({})
+const entryUpdated = ref(-1)
 
 const options = ref([
   { value: '', text: '--All Dates--' },
@@ -277,20 +280,36 @@ watch(selected, (newValue) => {
   }
 })
 
+function insertEntry(payload) {
+  console.log('insertEntry in account: ' + payload.id)
+}
+
 function addEntry() {
   // console.log("addEntry()")
   showForm.value = true
 }
 
-function updateEntry() {
-  console.log('updateEntry')
+function updateEntry(payload) {
+  console.log('updateEntry in account:' + payload.id)
   showEditForm.value = false
+  // if (payload.edit) {
+  //   entryUpdated.value = payload.entry.id
+  // }
 }
 
 function editEntry(entry) {
   editFormData.value = entry
   showEditForm.value = true
   console.log(editFormData.value)
+}
+
+function deleteEntry(entry) {
+  console.log('deleteEntry()')
+  const params = {
+    id: props.id,
+    entryId: entry.id,
+  }
+  store.dispatch('accounts/deleteEntry', params)
 }
 
 function canClose() {

@@ -82,16 +82,57 @@ export default {
       Authorization: 'Bearer ' + token,
     }
     try {
+      // params.edit true means that we need to update an existing entry
       if (params.edit) {
-        await axios.put(url, params.payload, { headers })
+        const response = await axios.put(url, params.payload, { headers })
+        console.log(`response: ${response.data.message}`)
+        response.data.affectedAccounts.forEach((acc) => {
+          console.log(
+            `affected account: ${acc.id}, balance: ${acc.currentBalance}`,
+          )
+          context.commit('updateAccount', acc)
+        })
       } else {
-        await axios.post(url, params.payload, { headers })
+        const response = await axios.post(url, params.payload, { headers })
+        console.log(`response: ${response.data.message}`)
+        response.data.affectedAccounts.forEach((acc) => {
+          console.log(
+            `affected account: ${acc.id}, balance: ${acc.currentBalance}`,
+          )
+          context.commit('updateAccount', acc)
+        })
         // save data in vuex store
         context.commit('appendEntry', params.payload)
       }
     } catch (error) {
       console.log(error.message)
       throw error
+    }
+  },
+  async deleteEntry(context, params) {
+    const url = context.rootGetters.apiUrl + 'account/' + params.id
+    const token = context.rootGetters.token
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token,
+    }
+    console.log(`delete entry from account: ${params.id}`)
+    try {
+      const response = await axios.delete(url, {
+        headers,
+        params: {
+          entryId: params.entryId,
+        },
+      })
+      console.log(`response: ${response.data.message}`)
+      response.data.affectedAccounts.forEach((acc) => {
+        console.log(
+          `affected account: ${acc.id}, balance: ${acc.currentBalance}`,
+        )
+        context.commit('updateAccount', acc)
+      })
+    } catch (error) {
+      console.log(error)
     }
   },
 }

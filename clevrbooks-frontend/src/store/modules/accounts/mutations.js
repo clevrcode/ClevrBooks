@@ -7,10 +7,10 @@ export default {
     state.entries = payload.entries
     state.nextCheckNumber = payload.nextCheck
   },
-  appendEntry(state, payload) {
-    state.entries.push(payload)
-    if (payload.checkNumber) {
-      state.nextCheckNumber = payload.checkNumber + 1
+  appendEntry(state, entry) {
+    state.entries.push(entry)
+    if (entry.checkNumber) {
+      state.nextCheckNumber = entry.checkNumber + 1
     }
   },
   setCategories(state, payload) {
@@ -22,11 +22,6 @@ export default {
     }
     for (const subcat of payload.subcategories) {
       state.subcategories[subcat.id] = subcat
-      //   state.subcategories[subcat.id] = {
-      //     id: subcat.id,
-      //     name: subcat.name,
-      //     category: subcat.category,
-      //   }
     }
   },
   clearAccounts(state) {
@@ -35,5 +30,11 @@ export default {
     state.subcategories = {}
     state.entries = []
     state.currentAccount = null
+  },
+  updateAccount(state, payload) {
+    const account = state.accounts.find((acc) => acc.id === payload.id)
+    if (account) {
+      account.currentBalance = payload.currentBalance
+    }
   },
 }

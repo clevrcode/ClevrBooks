@@ -3,7 +3,8 @@
     "database": "ClevrBooks",
     "dialect": "sqlite",
     "host": "localhost",
-    "storage": "./clevrbooks.sqlite3"
+    "storage": "./clevrbooks.sqlite3",
+    "query": { "raw": true }
   },
   "test": {
     "database": "ClevrBooks",
@@ -14,6 +15,7 @@
     "database": "ClevrBooks",
     "dialect": "sqlite",
     "storage": "./clevrbooks.sqlite3",
+    "query": { "raw": true },
     "logging": false
   }
 }

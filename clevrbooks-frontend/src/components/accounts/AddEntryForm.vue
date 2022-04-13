@@ -352,10 +352,10 @@ function buildRequest() {
     checkNumber: checkNumberInput.value,
     type: typeInput.value,
     memo: memoInput.value,
-    xferToAccount: xferToAccount.value,
+    xferToAccount: xferToAccount.value ? 1 : 0,
     category: category,
     subcategory: subcategory,
-    cleared: false,
+    cleared: 0,
     amount: amount,
     accountId: props.accountId,
   }
@@ -448,6 +448,7 @@ async function submitForm() {
   } catch (err) {
     errorMsg.value = err.message || 'Submit failed!'
   }
+  emit('submit', payload)
   isLoading.value = false
 }
 

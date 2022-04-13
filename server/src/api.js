@@ -38,5 +38,6 @@ router
   .get(checkAuth, validateAccount, AccountController.getAccountEntries)
   .post(checkAuth, validateAccount, AccountController.insertEntry)
   .put(checkAuth, AccountController.updateEntry)
+  .delete(checkAuth, AccountController.deleteEntry)
 
 module.exports = router

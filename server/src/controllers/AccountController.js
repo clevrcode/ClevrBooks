@@ -13,8 +13,9 @@ async function getLastCheckNumber(accountId) {
     order: [['checkNumber', 'DESC']],
     limit: 1,
   })
+  console.log(lastCheck)
   if (lastCheck.length > 0) {
-    return lastCheck[0].dataValues.checkNumber
+    return lastCheck[0].checkNumber
   }
   return null
 }
@@ -27,6 +28,11 @@ async function updateCurrentBalance(accountId, amount) {
     by: amount,
     where: { id: accountId },
   })
+  const newBalance = await Account.findOne({
+    attributes: ['id', 'currentBalance'],
+    where: { id: accountId },
+  })
+  return newBalance
 }
 
 async function updateAccount(account) {
@@ -55,36 +61,80 @@ async function updateAccount(account) {
 
 async function modifyEntry(fromEntry, toEntry) {
   // Update the main entry
+  let affectedAccount = null
   if (fromEntry.amount !== toEntry.amount) {
     const amount = toEntry.amount - fromEntry.amount
-    updateCurrentBalance(toEntry.accountId, amount)
+    affectedAccount = updateCurrentBalance(toEntry.accountId, amount)
   }
   let newEntry = {}
+  let entryEmpty = true
   Object.keys(fromEntry).forEach((e) => {
-    if (e !== 'id' && fromEntry[e] !== toEntry[e]) {
-      console.log(`key=${e}: change ${fromEntry[e]} ==> ${toEntry[e]}`)
-      newEntry[e] = toEntry[e]
+    if (e !== 'id' && e !== 'createdAt' && e !== 'updatedAt') {
+      if (fromEntry[e] !== toEntry[e]) {
+        console.log(`key=${e}: change ${fromEntry[e]} ==> ${toEntry[e]}`)
+        newEntry[e] = toEntry[e]
+        entryEmpty = false
+      }
     }
   })
-  await Entry.update(newEntry, {
-    where: {
-      id: fromEntry.id,
-    },
-  })
+  if (!entryEmpty) {
+    await Entry.update(newEntry, {
+      where: {
+        id: fromEntry.id,
+      },
+    })
+  }
+  return affectedAccount
 }
 
 async function createEntry(entry) {
+  if (entry.hasOwnProperty('id')) delete entry.id
+  if (entry.hasOwnProperty('createdAt')) delete entry.createdAt
+  if (entry.hasOwnProperty('updatedAt')) delete entry.updatedAt
   await Entry.create(entry)
-  await updateCurrentBalance(entry.accountId, entry.amount)
+  const affected = await updateCurrentBalance(entry.accountId, entry.amount)
+  if (affected) {
+    console.log(
+      `Affected account: ${affected.id}, balance: ${affected.CurrentBalance}`,
+    )
+  }
+  return affected
 }
 
-async function deleteEntry(entry) {
+async function destroyEntry(entry) {
   await Entry.destroy({
     where: {
       id: entry.id,
     },
   })
-  await updateCurrentBalance(entry.accountId, -entry.amount)
+  const affected = await updateCurrentBalance(entry.accountId, -entry.amount)
+  return affected
+}
+
+function buildXferEntry(entry) {
+  let xferEntry = null
+  if (entry.xferToAccount) {
+    xferEntry = JSON.parse(JSON.stringify(entry))
+    xferEntry.accountId = entry.category
+    xferEntry.category = entry.accountId
+    xferEntry.amount = -entry.amount
+    xferEntry.checkNumber = null
+    delete xferEntry.id
+  }
+  return xferEntry
+}
+
+async function findXferEntry(entry) {
+  return await Entry.findOne({
+    where: {
+      accountId: entry.category,
+      xferToAccount: 1,
+      category: entry.accountId,
+      amount: -entry.amount,
+      payee: entry.payee,
+      date: entry.date,
+    },
+  })
 }
 
 module.exports = {
@@ -207,23 +257,22 @@ module.exports = {
     console.log(req.body)
     console.log(req.params)
     let mainEntry = req.body
-    let xferEntry = null
-    if (mainEntry.xferToAccount) {
-      xferEntry = JSON.parse(JSON.stringify(mainEntry))
-      xferEntry.accountId = mainEntry.category
-      xferEntry.category = mainEntry.accountId
-      xferEntry.amount = -mainEntry.amount
-      xferEntry.checkNumber = null
-    }
+    let xferEntry = buildXferEntry(mainEntry)
 
     try {
+      let affectedAccounts = []
       const result = await sequelize.transaction(async (t) => {
-        await createEntry(mainEntry)
+        let affected = await createEntry(mainEntry)
+        if (affected) affectedAccounts.push(affected)
         if (xferEntry) {
-          await createEntry(xferEntry)
+          affected = await createEntry(xferEntry)
+          if (affected) affectedAccounts.push(affected)
         }
       })
-      res.send('New entry added')
+      res.send({
+        message: 'New entry added successfully',
+        affectedAccounts: affectedAccounts,
+      })
       console.log('Entry added successfully')
     } catch (error) {
       console.log(`exception: ${error}`)
@@ -237,14 +286,14 @@ module.exports = {
     console.log('updateEntry()')
     console.log(req.body)
     console.log(req.params)
-    let mainEntry = req.body
-
+    let newEntry = req.body
+    let affectedAccounts = []
     try {
       const result = await sequelize.transaction(async (t) => {
         // Get the previous entry
         const beforeEntry = await Entry.findOne({
           where: {
-            id: mainEntry.id,
+            id: newEntry.id,
           },
         })
         if (!beforeEntry) {
@@ -258,16 +307,9 @@ module.exports = {
         // TODO: TAKE CARE OF POSSIBILITY THAT XFER TO ANOTHER ACCOUNT OR
         //       XFER IS REMOVED AND IS NOW AN EXPENSE
         if (beforeEntry.xferToAccount) {
-          let beforeXferEntry = await Entry.findOne({
-            where: {
-              accountId: beforeEntry.category,
-              xferToAccount: 1,
-              category: beforeEntry.accountId,
-              amount: -beforeEntry.amount,
-              payee: beforeEntry.payee,
-              date: beforeEntry.date,
-            },
-          })
+          console.log('entry was previously a xfer to account')
+          const xferEntry = buildXferEntry(beforeEntry)
+          let beforeXferEntry = findXferEntry(xferEntry)
           if (!beforeXferEntry) {
             console.log('xfer entry not found')
             res.status(401).send({
@@ -277,29 +319,35 @@ module.exports = {
           }
 
           // Entry changed from xfer to an expense
-          if (!mainEntry.xferToAccount) {
+          if (!newEntry.xferToAccount) {
             // delete the xfer entry
-            deleteEntry(beforeXferEntry)
+            let tmp = destroyEntry(beforeXferEntry)
+            if (tmp) affectedAccounts.push(tmp)
           } else {
-            let xferEntry = JSON.parse(JSON.stringify(mainEntry))
-            xferEntry.accountId = mainEntry.category
-            xferEntry.category = mainEntry.accountId
-            xferEntry.amount = -mainEntry.amount
-
             // Transfer moved to a different account
-            if (mainEntry.category != beforeXferEntry.accountId) {
+            if (newEntry.category != beforeXferEntry.accountId) {
               // Delete entry and create a new one for the new account
-              deleteEntry(beforeXferEntry)
-              createEntry(xferEntry)
+              let tmp = destroyEntry(beforeXferEntry)
+              if (tmp) affectedAccounts.push(tmp)
+              tmp = createEntry(xferEntry)
+              if (tmp) affectedAccounts.push(tmp)
             } else {
               // Transfer to same account, just modify the transfer entry
-              modifyEntry(beforeXferEntry, xferEntry)
+              let tmp = modifyEntry(beforeXferEntry, xferEntry)
+              if (tmp) affectedAccounts.push(tmp)
             }
           }
         }
-        modifyEntry(beforeEntry, mainEntry)
+        console.log(beforeEntry)
+        let tmp = modifyEntry(beforeEntry, newEntry)
+        if (tmp) affectedAccounts.push(tmp)
+        console.log(affectedAccounts)
       })
-      res.send('Entry updated')
+      // Send response to caller
+      res.send({
+        message: 'Entry updated successfully',
+        affectedAccounts: affectedAccounts,
+      })
     } catch (error) {
       console.log(`exception: ${error}`)
       res.status(500).send({
@@ -308,7 +356,55 @@ module.exports = {
     }
   },
 
-  async deleteEntry(req, res) {},
+  async deleteEntry(req, res) {
+    console.log('deleteEntry()')
+    console.log(`Params: ${req.params}`)
+    console.log(`Query: ${req.query.entryId}`)
+    const entryId = req.query.entryId
+
+    try {
+      let affectedAccounts = []
+      const result = await sequelize.transaction(async (t) => {
+        console.log(`retrieve entry id: ${entryId}`)
+        let mainEntry = await Entry.findOne({
+          where: {
+            id: entryId,
+          },
+        })
+        if (mainEntry) {
+          console.log(`entry found: payee is '${mainEntry.payee}'`)
+          console.log('check for xferEntry...')
+          let xferEntry = buildXferEntry(mainEntry)
+          if (xferEntry) console.log('xfer entry should exist ...')
+          console.log(`delete main entry ${entryId}`)
+          let affected = await destroyEntry(mainEntry)
+          if (affected) affectedAccounts.push(affected)
+          if (xferEntry) {
+            let tmpEntry = findXferEntry(xferEntry)
+            if (tmpEntry) {
+              affected = await destroyEntry(tmpEntry)
+              if (affected) affectedAccounts.push(affected)
+            }
+          }
+        } else {
+          res.status(401).send({
+            message: `Entry ${req.query.entryId} not found!`,
+          })
+          return
+        }
+      })
+      res.send({
+        message: 'Entry deleted successfully',
+        affectedAccounts: affectedAccounts,
+      })
+      console.log('Entry deleted successfully')
+    } catch (error) {
+      console.log(`exception: ${error}`)
+      res.status(500).send({
+        error: error,
+      })
+    }
+  },
 
   async addAccount(req, res) {},
 

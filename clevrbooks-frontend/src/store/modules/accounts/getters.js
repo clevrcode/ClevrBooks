@@ -9,22 +9,21 @@ export default {
   },
 
   getAccountById: (state) => (id) => {
-    // console.log(`getAccountById(${id})`)
     return state.accounts.find((acc) => acc.id === id)
   },
+
   getAccountByName: (state) => (name) => {
     return state.accounts.find((acc) => {
       return acc ? acc.name === name : false
     })
   },
 
-  getCategoryById: (state) => (id) => {
-    return state.categories[id]
+  getCategories(state) {
+    return state.categories
   },
 
-  getCategories(state) {
-    console.log(state.categories.length)
-    return state.categories
+  getCategoryById: (state) => (id) => {
+    return state.categories[id]
   },
 
   getCategoryByName: (state) => (name) => {
@@ -32,21 +31,19 @@ export default {
       return cat ? cat.name === name : false
     })
   },
+
+  getSubcategoryById: (state) => (id) => {
+    return state.subcategories[id]
+  },
+
   getSubcategoryByName: (state) => (name) => {
     return state.subcategories.find((scat) => {
       return scat ? scat.name === name : false
     })
   },
 
-  getSubcategoryById: (state) => (id) => {
-    // console.log(`getSubcategoryById(${id})`)
-    return state.subcategories[id]
-  },
-
   getCategoryList(state) {
     const catList = []
-    // console.log(typeof state.categories)
-    // console.log(state.categories)
     state?.categories?.forEach((cat) => {
       catList.push(cat.name)
       const subcat = state?.subcategories?.filter(
