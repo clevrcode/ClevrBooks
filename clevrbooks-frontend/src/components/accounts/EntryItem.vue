@@ -1,7 +1,11 @@
 <template>
   <li class="entry_item" :class="{ entrychecked: isEntryChecked }">
-    <div class="entry-grid">
+    <div :class="gridClass">
       <div class="date">{{ entry.date }}</div>
+      <div class="check-number" v-if="props.banking">
+        {{ entry.checkNumber }}
+      </div>
+
       <div class="payee">{{ entry.payee }}</div>
       <div class="charge">{{ getCharge }}</div>
       <div class="checked">
@@ -12,6 +16,7 @@
       <div class="balance" :class="{ negative: balanceIsNegative }">
         {{ getBalance }}
       </div>
+      <div class="entry-type">{{ entry.type }}</div>
       <div class="category" :class="{ xfer: entry.xferToAccount }">
         {{ entry.category }}
       </div>
@@ -33,7 +38,12 @@ const { getMoneyString, isNegative } = useMoneyUtilities()
 // const store = useStore()
 
 const emit = defineEmits(['edit', 'delete'])
-const props = defineProps(['entry', 'balance'])
+const props = defineProps(['entry', 'balance', 'banking'])
+
+const gridClass = computed(() => ({
+  'entry-grid': !props.banking,
+  'entry-grid-banking': props.banking,
+}))
 
 const getCharge = computed(() => {
   return props.entry.amount < 0 ? getMoneyString(-props.entry.amount) : ''
@@ -97,7 +107,30 @@ li {
   grid-template-rows: 1.5rem 1.5rem;
   grid-template-areas:
     'date payee    payee charge checked payment amount bal'
-    '.    category memo  memo   memo    memo    edit   del';
+    'type category memo  memo   memo    memo    edit   del';
+}
+
+.entry-grid-banking {
+  display: grid;
+  grid-template-columns: 6rem 4rem 12rem auto 6rem 1.5rem 6rem 6rem 6rem;
+  grid-template-rows: 1.5rem 1.5rem;
+  grid-template-areas:
+    'date chk      payee     payee charge checked payment amount bal'
+    'type category category  memo  memo   memo    memo    edit   del';
+}
+
+.check-number {
+  grid-area: chk;
+  text-align: center;
+  border: 1px solid black;
+  background-color: white;
+}
+
+.entry-type {
+  grid-area: type;
+  text-align: center;
+  border: 1px solid black;
+  background-color: white;
 }
 
 .date {

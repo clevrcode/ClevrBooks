@@ -46,7 +46,10 @@
         <div class="account-header">
           <p class="account-header__name">{{ currentAccountName }}</p>
           <div class="account-header__filters">
-            <div class="account-header__add-entry" @click="addEntry">
+            <div class="account-header__action" @click="reconcileAccount">
+              <span class="material-icons-outlined">check</span>
+            </div>
+            <div class="account-header__action" @click="addEntry">
               <span class="material-icons-outlined">add</span>
             </div>
             <div class="account-header__filter-dates">
@@ -74,11 +77,13 @@
         </div>
         <ul ref="ledgerWnd">
           <entry-item
+            class="entry-table"
             v-for="entry in entries"
             :key="entry.data.id"
             v-memo="[entry.id === entryUpdated]"
             :entry="entry.data"
             :balance="entry.balance"
+            :banking="isBankingAccount"
             @edit="editEntry"
             @delete="deleteEntry"
           ></entry-item>
@@ -94,7 +99,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import EntryItem from '../../components/accounts/EntryItem.vue'
 import EntryForm from '../../components/accounts/AddEntryForm.vue'
@@ -102,6 +107,7 @@ import EntryForm from '../../components/accounts/AddEntryForm.vue'
 const props = defineProps(['id'])
 const store = useStore()
 const route = useRoute()
+const router = useRouter()
 const isLoading = ref(true)
 const errorMsg = ref(null)
 const searchEntry = ref('')
@@ -318,6 +324,11 @@ function canClose() {
   showEditForm.value = false
 }
 
+function reconcileAccount() {
+  console.log('reconcileAccount()')
+  router.push('/reconcile/' + props.id)
+}
+
 function scrollDown() {
   // console.log(`ledgerWnd: ${ledgerWnd.value}`)
   if (ledgerWnd.value) {
@@ -415,11 +426,10 @@ ul {
   align-items: center;
 }
 
-/* .account-header__add-entry {
-  border: 1px solid black;
-  border-radius: 4px;
-} */
-.account-header__add-entry:hover {
+.account-header__action {
+  padding: 0 0.75rem;
+}
+.account-header__action:hover {
   cursor: pointer;
   background: white;
 }
@@ -481,5 +491,9 @@ ul {
 
 .form-enter-to {
   transform: translateX(0%);
+}
+
+.entry-table {
+  margin: 0 0 5px 0;
 }
 </style>
