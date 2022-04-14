@@ -66,24 +66,14 @@ async function modifyEntry(fromEntry, toEntry) {
     const amount = toEntry.amount - fromEntry.amount
     affectedAccount = updateCurrentBalance(toEntry.accountId, amount)
   }
-  let newEntry = {}
-  let entryEmpty = true
-  Object.keys(fromEntry).forEach((e) => {
-    if (e !== 'id' && e !== 'createdAt' && e !== 'updatedAt') {
-      if (fromEntry[e] !== toEntry[e]) {
-        console.log(`key=${e}: change ${fromEntry[e]} ==> ${toEntry[e]}`)
-        newEntry[e] = toEntry[e]
-        entryEmpty = false
-      }
-    }
+  if (toEntry.hasOwnProperty('id')) delete toEntry.id
+  if (toEntry.hasOwnProperty('createdAt')) delete toEntry.createdAt
+  if (toEntry.hasOwnProperty('updatedAt')) delete toEntry.updatedAt
+  await Entry.update(toEntry, {
+    where: {
+      id: fromEntry.id,
+    },
   })
-  if (!entryEmpty) {
-    await Entry.update(newEntry, {
-      where: {
-        id: fromEntry.id,
-      },
-    })
-  }
   return affectedAccount
 }
 
@@ -119,7 +109,9 @@ function buildXferEntry(entry) {
     xferEntry.category = entry.accountId
     xferEntry.amount = -entry.amount
     xferEntry.checkNumber = null
-    delete xferEntry.id
+    if (xferEntry.hasOwnProperty('id')) delete xferEntry.id
+    if (xferEntry.hasOwnProperty('createdAt')) delete xferEntry.createdAt
+    if (xferEntry.hasOwnProperty('updatedAt')) delete xferEntry.updatedAt
   }
   return xferEntry
 }
@@ -308,8 +300,7 @@ module.exports = {
         //       XFER IS REMOVED AND IS NOW AN EXPENSE
         if (beforeEntry.xferToAccount) {
           console.log('entry was previously a xfer to account')
-          const xferEntry = buildXferEntry(beforeEntry)
-          let beforeXferEntry = findXferEntry(xferEntry)
+          let beforeXferEntry = await findXferEntry(beforeEntry)
           if (!beforeXferEntry) {
             console.log('xfer entry not found')
             res.status(401).send({
@@ -321,25 +312,35 @@ module.exports = {
           // Entry changed from xfer to an expense
           if (!newEntry.xferToAccount) {
             // delete the xfer entry
-            let tmp = destroyEntry(beforeXferEntry)
+            let tmp = await destroyEntry(beforeXferEntry)
             if (tmp) affectedAccounts.push(tmp)
           } else {
             // Transfer moved to a different account
             if (newEntry.category != beforeXferEntry.accountId) {
               // Delete entry and create a new one for the new account
-              let tmp = destroyEntry(beforeXferEntry)
+              let tmp = await destroyEntry(beforeXferEntry)
               if (tmp) affectedAccounts.push(tmp)
-              tmp = createEntry(xferEntry)
+              const xferEntry = buildXferEntry(newEntry)
+              tmp = await createEntry(xferEntry)
               if (tmp) affectedAccounts.push(tmp)
             } else {
               // Transfer to same account, just modify the transfer entry
-              let tmp = modifyEntry(beforeXferEntry, xferEntry)
+              const xferEntry = buildXferEntry(newEntry)
+              let tmp = await modifyEntry(beforeXferEntry, xferEntry)
               if (tmp) affectedAccounts.push(tmp)
             }
           }
+        } else if (newEntry.xferToAccount) {
+          // create the xfer entry
+          const xferEntry = buildXferEntry(newEntry)
+          console.log(
+            `create new entry for xfer to account: ${xferEntry.accountId}`,
+          )
+          let tmp = await createEntry(xferEntry)
+          if (tmp) affectedAccounts.push(tmp)
         }
         console.log(beforeEntry)
-        let tmp = modifyEntry(beforeEntry, newEntry)
+        let tmp = await modifyEntry(beforeEntry, newEntry)
         if (tmp) affectedAccounts.push(tmp)
         console.log(affectedAccounts)
       })
@@ -373,15 +374,16 @@ module.exports = {
         })
         if (mainEntry) {
           console.log(`entry found: payee is '${mainEntry.payee}'`)
-          console.log('check for xferEntry...')
-          let xferEntry = buildXferEntry(mainEntry)
-          if (xferEntry) console.log('xfer entry should exist ...')
+          // let xferEntry = buildXferEntry(mainEntry)
+          // if (xferEntry) console.log('xfer entry should exist ...')
           console.log(`delete main entry ${entryId}`)
           let affected = await destroyEntry(mainEntry)
           if (affected) affectedAccounts.push(affected)
-          if (xferEntry) {
-            let tmpEntry = findXferEntry(xferEntry)
+          if (mainEntry.xferToAccount) {
+            console.log('check for xferEntry...')
+            let tmpEntry = await findXferEntry(mainEntry)
             if (tmpEntry) {
+              console.log(`xfer entry found... id: ${tmpEntry.id}`)
               affected = await destroyEntry(tmpEntry)
               if (affected) affectedAccounts.push(affected)
             }
