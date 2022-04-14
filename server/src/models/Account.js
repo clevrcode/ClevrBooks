@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+'use strict'
+const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class Account extends Model {
     /**
@@ -13,43 +11,49 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Account.belongsTo(models.User, {
         foreignKey: 'userId',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       }),
-      Account.hasMany(models.Entry, {
-        foreignKey: 'accountId'
-      })
+        Account.hasMany(models.Entry, {
+          foreignKey: 'accountId',
+        }),
+        Account.hasMany(models.Reminder, {
+          foreignKey: 'fromAccount',
+        })
     }
-  };
-  Account.init({
-    name: {
-      allowNull: false,
+  }
+  Account.init(
+    {
+      name: {
+        allowNull: false,
+        type: DataTypes.STRING,
+        unique: true,
+      },
+      description: DataTypes.STRING,
       type: DataTypes.STRING,
-      unique: true
+      initBalance: {
+        allowNull: false,
+        type: DataTypes.FLOAT,
+        defaultValue: 0.0,
+      },
+      currentBalance: {
+        allowNull: false,
+        type: DataTypes.FLOAT,
+        defaultValue: 0.0,
+      },
+      currency: {
+        allowNull: false,
+        type: DataTypes.STRING,
+        defaultValue: 'CDN',
+      },
+      reconciledAt: {
+        type: DataTypes.DATEONLY,
+      },
     },
-    description: DataTypes.STRING,
-    type: DataTypes.STRING,
-    initBalance: {
-      allowNull: false,
-      type: DataTypes.FLOAT,
-      defaultValue: 0.0
+    {
+      sequelize,
+      modelName: 'Account',
+      timestamps: false,
     },
-    currentBalance: {
-      allowNull: false,
-      type: DataTypes.FLOAT,
-      defaultValue: 0.0
-    },
-    currency: {
-      allowNull: false,
-      type: DataTypes.STRING,
-      defaultValue: 'CDN'
-    },
-    reconciledAt: {
-      type: DataTypes.DATEONLY
-    }
-  }, {
-    sequelize,
-    modelName: 'Account',
-    timestamps: false
-  });
-  return Account;
-};
+  )
+  return Account
+}
