@@ -47,7 +47,7 @@
           <p class="account-header__name">{{ currentAccountName }}</p>
           <div class="account-header__filters">
             <div class="account-header__action" @click="reconcileAccount">
-              <span class="material-icons-outlined">check</span>
+              <span class="material-icons-outlined">inventory</span>
             </div>
             <div class="account-header__action" @click="addEntry">
               <span class="material-icons-outlined">add</span>

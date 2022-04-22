@@ -1,52 +1,58 @@
 <template>
   <div class="reconcile-page">
-    <div class="account-header" @click="toggleInit">
+    <div class="account-header">
       <p class="account-header__name">{{ currentAccountName }}</p>
     </div>
-    <div v-if="!initialized">
-      <base-card>
-        <label for="report-date">Report Date:</label>
-        <input
-          type="date"
-          id="report-date"
-          v-model.trim="reportDate"
-          data-lpignore="true"
-        />
-        <label for="ending-balance">Ending Balance:</label>
-        <input type="text" id="ending-balance" data-lpignore="true" />
-      </base-card>
+    <div v-if="!phase2">
+      <KeepAlive>
+        <reconcile-phase1
+          @next="goPhase2"
+          @cancel="cancel"
+          :date="getDate"
+        ></reconcile-phase1>
+      </KeepAlive>
     </div>
     <div v-else>
-      <h1>Initialized</h1>
+      <reconcile-phase2
+        :accountId="props.id"
+        :data="reconcileData"
+      ></reconcile-phase2>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
-import AutoNumeric from 'autonumeric'
+import { useRouter } from 'vue-router'
+import ReconcilePhase1 from '../../components/accounts/ReconcilePhase1.vue'
+import ReconcilePhase2 from '../../components/accounts/ReconcilePhase2.vue'
 
 const store = useStore()
+const router = useRouter()
+
 const props = defineProps(['id'])
 
-const reportDate = ref(new Date().toLocaleString().substring(0, 10))
-const initialized = ref(false)
+const phase2 = ref(false)
+const reconcileData = ref({})
 
-onMounted(() => {
-  console.log('ReconcileAccount:onMounted()')
-  if (!initialized.value) {
-    new AutoNumeric('#ending-balance', { currencySymbol: '$' })
-  }
-})
+function goPhase2(data) {
+  console.log('goPhase2()')
+  reconcileData.value = data
+  phase2.value = true
+}
 
-function toggleInit() {
-  initialized.value = !initialized.value
+function cancel() {
+  router.back()
 }
 
 const currentAccountName = computed(() => {
   const account = store.getters['accounts/getAccountById'](parseInt(props.id))
   return account ? account.name : 'Undefined'
+})
+
+const getDate = computed(() => {
+  return new Date().toLocaleString().substring(0, 10)
 })
 </script>
 

@@ -113,4 +113,8 @@ export default {
       .lastIndexOf(true)
     return state.entries[lastIndex]
   },
+
+  getUncheckedEntries(state) {
+    return state.entries.filter((entry) => entry.cleared === 0)
+  },
 }
