@@ -102,7 +102,7 @@ async function submitForm() {
     formIsValid.value = false
     return
   }
-  // send http request to Firebase
+  // send http request to server
   isLoading.value = true
   const payload = {
     email: email.value,
