@@ -494,6 +494,6 @@ ul {
 }
 
 .entry-table {
-  margin: 0 0 5px 0;
+  margin: 0 0 1px 0;
 }
 </style>

@@ -40,6 +40,14 @@
       :name="acc.name"
       :balance="acc.currentBalance"
     ></account-item>
+    <p class="acctype-header" v-if="assetAccounts.length > 0">Misc</p>
+    <account-item
+      v-for="acc in assetAccounts"
+      :key="acc.id"
+      :id="acc.id"
+      :name="acc.name"
+      :balance="acc.currentBalance"
+    ></account-item>
     <p class="acctype-header" v-if="miscAccounts.length > 0">Misc</p>
     <account-item
       v-for="acc in miscAccounts"
@@ -85,6 +93,11 @@ const savingAccounts = computed(() => {
 const businessAccounts = computed(() => {
   return store.getters['accounts/accounts'].filter(
     (acc) => acc.type === 'Business',
+  )
+})
+const assetAccounts = computed(() => {
+  return store.getters['accounts/accounts'].filter(
+    (acc) => acc.type === 'Asset',
   )
 })
 const miscAccounts = computed(() => {
