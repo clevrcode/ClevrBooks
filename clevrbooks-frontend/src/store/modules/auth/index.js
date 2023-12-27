@@ -3,7 +3,8 @@ import actions from './actions.js'
 import getters from './getters.js'
 
 const production_url = 'http://192.168.2.3:8080/api/'
-const development_url = 'http://localhost:8081/api/'
+const development_url = 'http://192.168.2.3:8080/api/'
+// const development_url = 'http://localhost:8081/api/'
 
 export default {
   state() {
