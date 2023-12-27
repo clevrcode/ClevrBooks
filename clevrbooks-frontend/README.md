@@ -2,6 +2,7 @@
 
 ## Project setup
 ```
+npm-check-updates -u
 npm install
 ```
 
